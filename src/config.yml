@@ -1,0 +1,26 @@
+# @plugin ExplosionRegeneration
+# @version 1.3.2
+# @author foncused
+
+# Do you want blocks to regenerate in random order?
+# true -> regeneration will occur in random order
+# false -> regeneration will occur from bottom to top (fixes gravel, sand, etc. better)
+random: true
+
+# Speed in ticks for block regeneration
+# You can change the speed in-game with /blockregenspeed <speed>
+# Recommended not to put this number over 200 since it uses a running task
+speed: 2
+
+# Delay in ticks before block regeneration
+delay: 0
+
+# Which particle effect would you like to use?
+particle: VILLAGER_HAPPY
+
+# Which sound would you like to use?
+sound: ENTITY_CHICKEN_EGG
+
+# Which blocks should NOT be regenerated?
+filter:
+  - FIRE
