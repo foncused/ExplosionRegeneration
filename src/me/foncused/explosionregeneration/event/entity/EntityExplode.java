@@ -1,6 +1,5 @@
 package me.foncused.explosionregeneration.event.entity;
 
-import me.foncused.explosionregeneration.event.AbstractEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -10,18 +9,22 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-public class EntityExplode extends AbstractEvent implements Listener {
+public class EntityExplode implements Listener {
 
+	private static JavaPlugin instance;
 	private static boolean random = true;
 	private static int speed = 2;
 	private static int delay = 0;
 	private static Particle particle = Particle.VILLAGER_HAPPY;
 	private static Sound sound = Sound.ENTITY_CHICKEN_EGG;
 	private static Set<Material> filter = new HashSet<>();
+
+	public static void inject(final JavaPlugin instance) { EntityExplode.instance = instance; }
 
 	@EventHandler
 	public void onEntityExplodeEvent(final EntityExplodeEvent event) {

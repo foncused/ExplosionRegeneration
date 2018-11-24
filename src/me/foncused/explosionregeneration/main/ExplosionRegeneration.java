@@ -2,7 +2,6 @@ package me.foncused.explosionregeneration.main;
 
 import me.foncused.explosionregeneration.command.BlockRegenSpeedCommand;
 import me.foncused.explosionregeneration.config.Config;
-import me.foncused.explosionregeneration.event.AbstractEvent;
 import me.foncused.explosionregeneration.event.entity.EntityExplode;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -24,7 +23,7 @@ public class ExplosionRegeneration extends JavaPlugin {
 	}
 
 	private void initialize() {
-		AbstractEvent.inject(this);
+		EntityExplode.inject(this);
 	}
 
 	private void registerCommands() {
