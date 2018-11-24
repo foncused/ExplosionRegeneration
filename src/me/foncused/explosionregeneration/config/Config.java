@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.logging.Logger;
 
-public final class Config {
+public class Config {
 
 	private Config() {
 		throw new IllegalStateException();

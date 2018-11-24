@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class ExplosionRegeneration extends JavaPlugin {
+public class ExplosionRegeneration extends JavaPlugin {
 
 	@Override
 	public void onEnable() {

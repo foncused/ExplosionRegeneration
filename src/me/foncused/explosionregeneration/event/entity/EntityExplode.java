@@ -14,7 +14,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-public final class EntityExplode extends AbstractEvent implements Listener {
+public class EntityExplode extends AbstractEvent implements Listener {
 
 	private static boolean random = true;
 	private static int speed = 2;
