@@ -1,7 +1,8 @@
 name: ExplosionRegeneration
-main: me.foncused.explosionregeneration.main.ExplosionRegeneration
+main: me.foncused.explosionregeneration.ExplosionRegeneration
 version: 1.3.4
 author: foncused
+api-version: 1.13
 
 commands:
   blockregenspeed:
