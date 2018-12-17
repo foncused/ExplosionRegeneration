@@ -24,7 +24,8 @@ public class EntityExplode implements Listener {
 	private Particle particle = Particle.VILLAGER_HAPPY;
 	private Sound sound = Sound.ENTITY_CHICKEN_EGG;
 	private Set<Material> filter = new HashSet<>();
-	private boolean wg;
+	private Set<String> blacklist = new HashSet<>();
+	private boolean wg = false;
 
 	public EntityExplode(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
@@ -54,6 +55,10 @@ public class EntityExplode implements Listener {
 		this.filter = filter;
 	}
 
+	public void setBlacklist(final Set<String> blacklist) {
+		this.blacklist = blacklist;
+	}
+
 	public void setWorldGuard(final boolean wg) {
 		this.wg = wg;
 	}
@@ -64,19 +69,22 @@ public class EntityExplode implements Listener {
 		if(list.size() == 0) {
 			return;
 		}
+		final World world = event.getLocation().getWorld();
+		if(this.blacklist != null && this.blacklist.contains(world.getName())) {
+			return;
+		}
 		if(this.wg) {
 			list = WorldGuardAPI.filter(list);
 			if(list.size() == 0) {
 				return;
 			}
 		}
-		final World world = list.get(0).getWorld();
 		this.removeDrops(world, event);
 		final Map<Block, ExplosionCache> caches = new HashMap<>();
 		for(final Block block : list) {
 			block.getDrops().clear();
 			final Material material = block.getType();
-			if(this.filter.contains(material)) {
+			if(this.filter != null && this.filter.contains(material)) {
 				continue;
 			}
 			final BlockState state = block.getState();

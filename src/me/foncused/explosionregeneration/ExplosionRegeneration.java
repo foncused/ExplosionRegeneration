@@ -35,9 +35,12 @@ public class ExplosionRegeneration extends JavaPlugin {
 		this.ee.setParticle(config.getString("particle"));
 		this.ee.setSound(config.getString("sound"));
 		final Set<Material> filter = new HashSet<>();
-		new HashSet<>(config.getStringList("filter")).forEach(s -> filter.add(Material.valueOf(s)));
+		config.getStringList("filter").forEach(s -> filter.add(Material.valueOf(s)));
 		this.ee.setFilter(Collections.unmodifiableSet(filter));
+		final Set<String> blacklist = new HashSet<>();
+		config.getStringList("blacklist").forEach(blacklist::add);
 		this.ee.setWorldGuard(config.getBoolean("worldguard"));
+		this.ee.setBlacklist(blacklist);
 		Bukkit.getPluginManager().registerEvents(this.ee, this);
 	}
 
