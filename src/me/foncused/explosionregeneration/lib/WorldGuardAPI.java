@@ -7,7 +7,6 @@ import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,8 +36,7 @@ public class WorldGuardAPI {
 				final List<Block> filter = new ArrayList<>();
 				list.forEach(block -> {
 					final WorldGuardPlatform wgp = wg.getPlatform();
-					final RegionManager rm = wgp.getRegionContainer().get(wgp.getWorldByName(block.getWorld().getName()));
-					final ApplicableRegionSet regions = rm.getApplicableRegions(
+					final ApplicableRegionSet regions = wgp.getRegionContainer().get(wgp.getWorldByName(block.getWorld().getName())).getApplicableRegions(
 							new BlockVector(
 									block.getX(),
 									block.getY(),
