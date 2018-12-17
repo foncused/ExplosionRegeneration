@@ -1,7 +1,7 @@
 package me.foncused.explosionregeneration;
 
 import me.foncused.explosionregeneration.command.BlockRegenSpeedCommand;
-import me.foncused.explosionregeneration.event.entity.ExplosionEvent;
+import me.foncused.explosionregeneration.event.entity.EntityExplode;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class ExplosionRegeneration extends JavaPlugin {
 
-	private ExplosionEvent ee;
+	private EntityExplode ee;
 
 	@Override
 	public void onEnable() {
@@ -27,7 +27,7 @@ public class ExplosionRegeneration extends JavaPlugin {
 	}
 
 	private void registerEvents() {
-		this.ee = new ExplosionEvent(this);
+		this.ee = new EntityExplode(this);
 		final FileConfiguration config = this.getConfig();
 		this.ee.setRandom(config.getBoolean("random"));
 		this.ee.setSpeed(config.getInt("speed"));

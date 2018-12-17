@@ -14,7 +14,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-public class ExplosionEvent implements Listener {
+public class EntityExplode implements Listener {
 
 	private ExplosionRegeneration plugin;
 	private boolean random = true;
@@ -24,7 +24,7 @@ public class ExplosionEvent implements Listener {
 	private Sound sound = Sound.ENTITY_CHICKEN_EGG;
 	private Set<Material> filter = new HashSet<>();
 
-	public ExplosionEvent(final ExplosionRegeneration plugin) {
+	public EntityExplode(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
 	}
 

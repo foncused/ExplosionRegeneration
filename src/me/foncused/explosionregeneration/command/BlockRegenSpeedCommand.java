@@ -1,6 +1,6 @@
 package me.foncused.explosionregeneration.command;
 
-import me.foncused.explosionregeneration.event.entity.ExplosionEvent;
+import me.foncused.explosionregeneration.event.entity.EntityExplode;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,9 +8,9 @@ import org.bukkit.command.CommandSender;
 
 public class BlockRegenSpeedCommand implements CommandExecutor {
 
-	private ExplosionEvent ee;
+	private EntityExplode ee;
 
-	public BlockRegenSpeedCommand(final ExplosionEvent ee) {
+	public BlockRegenSpeedCommand(final EntityExplode ee) {
 		this.ee = ee;
 	}
 
