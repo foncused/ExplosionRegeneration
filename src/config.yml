@@ -24,3 +24,7 @@ sound: ENTITY_CHICKEN_EGG
 # Which blocks should NOT be regenerated?
 filter:
   - FIRE
+
+# Should ExplosionRegeneration honor WorldGuard regions?
+# Setting this to true requires both WorldGuard and WorldEdit as dependencies
+worldguard: false

@@ -1,6 +1,7 @@
 package me.foncused.explosionregeneration.event.entity;
 
 import me.foncused.explosionregeneration.ExplosionRegeneration;
+import me.foncused.explosionregeneration.lib.WorldGuardAPI;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.BlockData;
@@ -23,6 +24,7 @@ public class EntityExplode implements Listener {
 	private Particle particle = Particle.VILLAGER_HAPPY;
 	private Sound sound = Sound.ENTITY_CHICKEN_EGG;
 	private Set<Material> filter = new HashSet<>();
+	private boolean wg;
 
 	public EntityExplode(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
@@ -52,11 +54,21 @@ public class EntityExplode implements Listener {
 		this.filter = filter;
 	}
 
+	public void setWorldGuard(final boolean wg) {
+		this.wg = wg;
+	}
+
 	@EventHandler
 	public void onEntityExplodeEvent(final EntityExplodeEvent event) {
-		final List<Block> list = event.blockList();
+		List<Block> list = event.blockList();
 		if(list.size() == 0) {
 			return;
+		}
+		if(this.wg) {
+			list = WorldGuardAPI.filter(list);
+			if(list.size() == 0) {
+				return;
+			}
 		}
 		final World world = list.get(0).getWorld();
 		this.removeDrops(world, event);
