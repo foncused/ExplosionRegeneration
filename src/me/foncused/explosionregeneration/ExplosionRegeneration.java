@@ -39,7 +39,7 @@ public class ExplosionRegeneration extends JavaPlugin {
 		this.ee.setFilter(Collections.unmodifiableSet(filter));
 		final Set<String> blacklist = new HashSet<>();
 		config.getStringList("blacklist").forEach(blacklist::add);
-		this.ee.setBlacklist(blacklist);
+		this.ee.setBlacklist(Collections.unmodifiableSet(blacklist));
 		this.ee.setWorldGuard(config.getBoolean("worldguard"));
 		Bukkit.getPluginManager().registerEvents(this.ee, this);
 	}
