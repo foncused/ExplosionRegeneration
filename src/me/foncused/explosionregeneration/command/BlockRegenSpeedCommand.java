@@ -31,10 +31,10 @@ public class BlockRegenSpeedCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.GREEN + "Block regeneration speed successfully changed to " + ChatColor.YELLOW + speed + ChatColor.GREEN + " ticks!");
 					} catch(final Exception e) {
 						e.printStackTrace();
-						printUsage(sender);
+						this.printUsage(sender);
 					}
 				} else {
-					printUsage(sender);
+					this.printUsage(sender);
 				}
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to do this!");
@@ -44,7 +44,7 @@ public class BlockRegenSpeedCommand implements CommandExecutor {
 		return true;
 	}
 
-	private static void printUsage(final CommandSender sender) {
+	private void printUsage(final CommandSender sender) {
 		sender.sendMessage(ChatColor.RED + "Incorrect usage. Use /blockregenspeed <speed>!");
 	}
 
