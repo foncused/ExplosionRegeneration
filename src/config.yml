@@ -16,10 +16,10 @@ speed: 2
 delay: 0
 
 # Which particle effect would you like to use?
-particle: VILLAGER_HAPPY
+particle: "VILLAGER_HAPPY"
 
 # Which sound would you like to use?
-sound: ENTITY_CHICKEN_EGG
+sound: "ENTITY_CHICKEN_EGG"
 
 # Which blocks should NOT be regenerated?
 filter:
@@ -27,7 +27,7 @@ filter:
 
 # In which worlds should ExplosionRegeneration NOT regenerate blocks?
 blacklist:
-  - "test"
+  - "lobby"
 
 # Should ExplosionRegeneration honor WorldGuard's config and region flags?
 # Setting this to true requires both WorldGuard and WorldEdit as dependencies

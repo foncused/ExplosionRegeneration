@@ -9,7 +9,7 @@ commands:
   blockregenspeed:
     usage: /<command>
     aliases: [brs]
-    description: Change block regeneration speed!
+    description: Change block regeneration speed
 
 permissions:
   explosionregeneration.blockregenspeed:

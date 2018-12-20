@@ -43,12 +43,12 @@ public class EntityExplode implements Listener {
 		this.delay = delay;
 	}
 
-	public void setParticle(final String p) {
-		this.particle = Particle.valueOf(p);
+	public void setParticle(final String particle) {
+		this.particle = Particle.valueOf(particle);
 	}
 
-	public void setSound(final String s) {
-		this.sound = Sound.valueOf(s);
+	public void setSound(final String sound) {
+		this.sound = Sound.valueOf(sound);
 	}
 
 	public void setFilter(final Set<Material> filter) {
