@@ -18,48 +18,24 @@ import java.util.*;
 public class EntityExplode implements Listener {
 
 	private ExplosionRegeneration plugin;
-	private boolean random = true;
-	private int speed = 2;
-	private int delay = 0;
-	private Particle particle = Particle.VILLAGER_HAPPY;
-	private Sound sound = Sound.ENTITY_CHICKEN_EGG;
-	private Set<Material> filter = new HashSet<>();
-	private Set<String> blacklist = new HashSet<>();
-	private boolean wg = false;
+	private boolean random;
+	private int speed;
+	private int delay;
+	private Particle particle;
+	private Sound sound;
+	private Set<Material> filter;
+	private Set<String> blacklist;
+	private boolean wg;
 
-	public EntityExplode(final ExplosionRegeneration plugin) {
+	public EntityExplode(final ExplosionRegeneration plugin, final boolean random, final int speed, final int delay, final Particle particle, final Sound sound, final Set<Material> filter, final Set<String> blacklist, final boolean wg) {
 		this.plugin = plugin;
-	}
-
-	public void setRandom(final boolean random) {
 		this.random = random;
-	}
-
-	public void setSpeed(final int speed) {
 		this.speed = speed;
-	}
-
-	public void setDelay(final int delay) {
 		this.delay = delay;
-	}
-
-	public void setParticle(final String particle) {
-		this.particle = Particle.valueOf(particle);
-	}
-
-	public void setSound(final String sound) {
-		this.sound = Sound.valueOf(sound);
-	}
-
-	public void setFilter(final Set<Material> filter) {
+		this.particle = particle;
+		this.sound = sound;
 		this.filter = filter;
-	}
-
-	public void setBlacklist(final Set<String> blacklist) {
 		this.blacklist = blacklist;
-	}
-
-	public void setWorldGuard(final boolean wg) {
 		this.wg = wg;
 	}
 
@@ -232,6 +208,10 @@ public class EntityExplode implements Listener {
 		}.runTaskLater(this.plugin, 5);
 	}
 
+	public void setSpeed(final int speed) {
+		this.speed = speed;
+	}
+
 }
 
 class ExplosionCache {
@@ -247,7 +227,7 @@ class ExplosionCache {
 		this(material, location, data, state, null, null);
 	}
 
-	ExplosionCache(final Material material, final Location location, final BlockData data, final BlockState state, final String[] sign, final ItemStack[] inventory) {
+	private ExplosionCache(final Material material, final Location location, final BlockData data, final BlockState state, final String[] sign, final ItemStack[] inventory) {
 		this.material = material;
 		this.location = location;
 		this.data = data;
@@ -256,51 +236,51 @@ class ExplosionCache {
 		this.inventory = inventory;
 	}
 
-	public Material getMaterial() {
+	Material getMaterial() {
 		return this.material;
 	}
 
-	public void setMaterial(final Material material) {
+	void setMaterial(final Material material) {
 		this.material = material;
 	}
 
-	public Location getLocation() {
+	Location getLocation() {
 		return this.location;
 	}
 
-	public void setLocation(final Location location) {
+	void setLocation(final Location location) {
 		this.location = location;
 	}
 
-	public BlockData getBlockData() {
+	BlockData getBlockData() {
 		return this.data;
 	}
 
-	public void setBlockData(final BlockData data) {
+	void setBlockData(final BlockData data) {
 		this.data = data;
 	}
 
-	public String[] getSignLines() {
+	String[] getSignLines() {
 		return this.sign;
 	}
 
-	public BlockState getBlockState() {
+	BlockState getBlockState() {
 		return this.state;
 	}
 
-	public void setBlockState(final BlockState state) {
+	void setBlockState(final BlockState state) {
 		this.state = state;
 	}
 
-	public void setSignLines(final String[] sign) {
+	void setSignLines(final String[] sign) {
 		this.sign = sign;
 	}
 
-	public ItemStack[] getInventory() {
+	ItemStack[] getInventory() {
 		return this.inventory;
 	}
 
-	public void setInventory(final ItemStack[] inventory) {
+	void setInventory(final ItemStack[] inventory) {
 		this.inventory = inventory;
 	}
 

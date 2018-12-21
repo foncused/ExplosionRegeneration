@@ -23,7 +23,7 @@ sound: "ENTITY_CHICKEN_EGG"
 
 # Which blocks should NOT be regenerated?
 filter:
-  - FIRE
+  - "FIRE"
 
 # In which worlds should ExplosionRegeneration NOT regenerate blocks?
 blacklist:

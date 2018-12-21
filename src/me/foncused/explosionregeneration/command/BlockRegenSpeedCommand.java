@@ -39,7 +39,6 @@ public class BlockRegenSpeedCommand implements CommandExecutor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to do this!");
 			}
-			return true;
 		}
 		return true;
 	}
