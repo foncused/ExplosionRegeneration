@@ -1,8 +1,12 @@
 package me.foncused.explosionregeneration.event.entity;
 
 import me.foncused.explosionregeneration.ExplosionRegeneration;
+import me.foncused.explosionregeneration.config.ConfigManager;
 import me.foncused.explosionregeneration.lib.WorldGuardAPI;
-import org.bukkit.*;
+import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
@@ -18,25 +22,11 @@ import java.util.*;
 public class EntityExplode implements Listener {
 
 	private ExplosionRegeneration plugin;
-	private boolean random;
-	private int speed;
-	private int delay;
-	private Particle particle;
-	private Sound sound;
-	private Set<Material> filter;
-	private Set<String> blacklist;
-	private boolean wg;
+	private ConfigManager cm;
 
-	public EntityExplode(final ExplosionRegeneration plugin, final boolean random, final int speed, final int delay, final Particle particle, final Sound sound, final Set<Material> filter, final Set<String> blacklist, final boolean wg) {
+	public EntityExplode(final ExplosionRegeneration plugin, final ConfigManager cm) {
 		this.plugin = plugin;
-		this.random = random;
-		this.speed = speed;
-		this.delay = delay;
-		this.particle = particle;
-		this.sound = sound;
-		this.filter = filter;
-		this.blacklist = blacklist;
-		this.wg = wg;
+		this.cm = cm;
 	}
 
 	@EventHandler
@@ -46,10 +36,11 @@ public class EntityExplode implements Listener {
 			return;
 		}
 		final World world = event.getLocation().getWorld();
-		if(this.blacklist != null && this.blacklist.contains(world.getName())) {
+		final Set<String> blacklist = this.cm.getBlacklist();
+		if(blacklist != null && blacklist.contains(world.getName())) {
 			return;
 		}
-		if(this.wg) {
+		if(this.cm.isWorldGuard()) {
 			list = WorldGuardAPI.filter(list);
 			if(list.size() == 0) {
 				return;
@@ -60,7 +51,8 @@ public class EntityExplode implements Listener {
 		for(final Block block : list) {
 			block.getDrops().clear();
 			final Material material = block.getType();
-			if(this.filter != null && this.filter.contains(material)) {
+			final Set<Material> filter = this.cm.getFilter();
+			if(filter != null && filter.contains(material)) {
 				continue;
 			}
 			final BlockState state = block.getState();
@@ -116,7 +108,7 @@ public class EntityExplode implements Listener {
 					}
 					Block block;
 					final List<Block> blocks = new ArrayList<>(caches.keySet());
-					if(random) {
+					if(cm.isRandom()) {
 						block = blocks.get(new Random().nextInt(blocks.size()));
 					} else {
 						int min = 0;
@@ -183,15 +175,15 @@ public class EntityExplode implements Listener {
 						container.update();
 					}
 					world.playEffect(location, Effect.STEP_SOUND, material == Material.AIR ? block.getType().getId() : material.getId());
-					world.spawnParticle(particle, location.add(0, 1, 0), 1, 0, 0, 0);
-					world.playSound(location, sound, 1F, 1F);
+					world.spawnParticle(cm.getParticle(), location.add(0, 1, 0), 1, 0, 0, 0);
+					world.playSound(location, cm.getSound(), 1F, 1F);
 					caches.remove(block);
 				} catch(final Exception e) {
 					e.printStackTrace();
 					this.cancel();
 				}
 			}
-		}.runTaskTimer(this.plugin, this.delay, this.speed);
+		}.runTaskTimer(this.plugin, this.cm.getDelay(), this.cm.getSpeed());
 		list.forEach(block -> {
 			block.getDrops().clear();
 			block.setType(Material.AIR);
@@ -206,10 +198,6 @@ public class EntityExplode implements Listener {
 				world.getEntitiesByClass(Item.class).stream().filter(item -> item.getLocation().distance(event.getLocation()) <= 20 && item.getType() == EntityType.DROPPED_ITEM).forEach(Item::remove);
 			}
 		}.runTaskLater(this.plugin, 5);
-	}
-
-	public void setSpeed(final int speed) {
-		this.speed = speed;
 	}
 
 }

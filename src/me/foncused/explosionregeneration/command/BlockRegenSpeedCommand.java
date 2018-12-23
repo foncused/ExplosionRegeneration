@@ -1,6 +1,6 @@
 package me.foncused.explosionregeneration.command;
 
-import me.foncused.explosionregeneration.event.entity.EntityExplode;
+import me.foncused.explosionregeneration.config.ConfigManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,10 +8,10 @@ import org.bukkit.command.CommandSender;
 
 public class BlockRegenSpeedCommand implements CommandExecutor {
 
-	private EntityExplode ee;
+	private ConfigManager cm;
 
-	public BlockRegenSpeedCommand(final EntityExplode ee) {
-		this.ee = ee;
+	public BlockRegenSpeedCommand(final ConfigManager cm) {
+		this.cm = cm;
 	}
 
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
@@ -27,7 +27,7 @@ public class BlockRegenSpeedCommand implements CommandExecutor {
 						if(speed > 200) {
 							sender.sendMessage(ChatColor.RED + "Warning - a slow regeneration speed may cause lag on your server. It should be recommended to keep the regeneration speed less than 200 ticks per block.");
 						}
-						this.ee.setSpeed(speed);
+						this.cm.setSpeed(speed);
 						sender.sendMessage(ChatColor.GREEN + "Block regeneration speed successfully changed to " + ChatColor.YELLOW + speed + ChatColor.GREEN + " ticks!");
 					} catch(final Exception e) {
 						e.printStackTrace();
