@@ -23,85 +23,42 @@ public class ConfigManager {
 
 	public ConfigManager(final boolean random, final int speed, final int delay, final String particle, final String sound, final List<String> filter, final List<String> blacklist, final boolean worldguard) {
 		this.random = random;
-		this.setSpeed(speed);
-		this.setDelay(delay);
-		this.setParticle(particle);
-		this.setSound(sound);
-		this.setFilter(filter);
-		this.setBlacklist(blacklist);
-		this.worldguard = worldguard;
-	}
-
-	public boolean isRandom() {
-		return this.random;
-	}
-
-	public void setRandom(final boolean random) {
-		ExplosionRenerationUtilities.console(random ? "Random mode enabled" : "Random mode disabled");
-		this.random = random;
-	}
-
-	public int getSpeed() {
-		return this.speed;
-	}
-
-	public void setSpeed(final int speed) {
+		ExplosionRenerationUtilities.console(this.random ? "Random mode enabled" : "Random mode disabled");
 		if(speed <= 0) {
-			ExplosionRenerationUtilities.consoleWarning("Set speed to " + speed + " ticks is not safe, reverting to default...");
 			this.speed = 10;
+			ExplosionRenerationUtilities.consoleWarning("Set speed to " + speed + " ticks is not safe, reverting to default...");
 		} else {
 			this.speed = speed;
 		}
 		ExplosionRenerationUtilities.console("Set speed to " + this.speed + " ticks");
-	}
-
-	public int getDelay() {
-		return this.delay;
-	}
-
-	public void setDelay(final int delay) {
 		if(delay < 0) {
-			ExplosionRenerationUtilities.consoleWarning("Set delay to " + delay + " ticks is not safe, reverting to default...");
 			this.delay = 0;
+			ExplosionRenerationUtilities.consoleWarning("Set delay to " + delay + " ticks is not safe, reverting to default...");
 		} else {
 			this.delay = delay;
 		}
 		ExplosionRenerationUtilities.console("Set delay to " + this.delay + " ticks");
-	}
-
-	public Particle getParticle() {
-		return this.particle;
-	}
-
-	public void setParticle(final String particle) {
 		try {
 			this.particle = Particle.valueOf(particle.toUpperCase());
 		} catch(final IllegalArgumentException e) {
-			ExplosionRenerationUtilities.consoleWarning("Set particle to " + particle + " is not safe, reverting to default...");
 			this.particle = Particle.VILLAGER_HAPPY;
+			ExplosionRenerationUtilities.consoleWarning("Set particle to " + particle + " is not safe, reverting to default...");
 		}
 		ExplosionRenerationUtilities.console("Set particle to " + this.particle.toString());
-	}
-
-	public Sound getSound() {
-		return this.sound;
-	}
-
-	public void setSound(final String sound) {
+		try {
+			this.particle = Particle.valueOf(particle.toUpperCase());
+		} catch(final IllegalArgumentException e) {
+			this.particle = Particle.VILLAGER_HAPPY;
+			ExplosionRenerationUtilities.consoleWarning("Set particle to " + particle + " is not safe, reverting to default...");
+		}
+		ExplosionRenerationUtilities.console("Set particle to " + this.particle.toString());
 		try {
 			this.sound = Sound.valueOf(sound.toUpperCase());
 		} catch(final IllegalArgumentException e) {
-			ExplosionRenerationUtilities.consoleWarning("Set sound to " + sound + " is not safe, reverting to default...");
 			this.sound = Sound.ENTITY_CHICKEN_EGG;
+			ExplosionRenerationUtilities.consoleWarning("Set sound to " + sound + " is not safe, reverting to default...");
 		}
 		ExplosionRenerationUtilities.console("Set sound to " + this.sound.toString());
-	}
-
-	public Set<Material> getFilter() {
-		return this.filter;
-	}
-
-	public void setFilter(final List<String> filter) {
 		this.filter = new HashSet<>();
 		filter.forEach(material -> {
 			Material m;
@@ -111,20 +68,71 @@ public class ConfigManager {
 				ExplosionRenerationUtilities.consoleWarning("Material " + material + " is invalid, reverting to default...");
 				m = Material.FIRE;
 			}
-			ExplosionRenerationUtilities.console("Material " + m.toString() + " has filtered from regeneration");
 			this.filter.add(m);
+			ExplosionRenerationUtilities.console("Material " + m.toString() + " is filtered from regeneration");
 		});
 		this.filter = Collections.unmodifiableSet(this.filter);
+		this.blacklist = new HashSet<>();
+		this.blacklist.addAll(blacklist);
+		this.blacklist = Collections.unmodifiableSet(this.blacklist);
+		this.worldguard = worldguard;
+		ExplosionRenerationUtilities.console(this.worldguard ? "WorldGuard mode enabled" : "WorldGuard mode disabled");
+	}
+
+	public boolean isRandom() {
+		return this.random;
+	}
+
+	public void setRandom(final boolean random) {
+		this.random = random;
+	}
+
+	public int getSpeed() {
+		return this.speed;
+	}
+
+	public void setSpeed(final int speed) {
+		this.speed = speed;
+	}
+
+	public int getDelay() {
+		return this.delay;
+	}
+
+	public void setDelay(final int delay) {
+		this.delay = delay;
+	}
+
+	public Particle getParticle() {
+		return this.particle;
+	}
+
+	public void setParticle(final Particle particle) {
+		this.particle = particle;
+	}
+
+	public Sound getSound() {
+		return this.sound;
+	}
+
+	public void setSound(final Sound sound) {
+		this.sound = sound;
+	}
+
+	public Set<Material> getFilter() {
+		return this.filter;
+	}
+
+	public void setFilter(final Set<Material> filter) {
+		this.filter = filter;
 	}
 
 	public Set<String> getBlacklist() {
 		return this.blacklist;
 	}
 
-	public void setBlacklist(final List<String> blacklist) {
-		this.blacklist = new HashSet<>();
-		this.blacklist.addAll(blacklist);
-		this.blacklist = Collections.unmodifiableSet(this.blacklist);
+	public void setBlacklist(final Set<String> blacklist) {
+		this.blacklist = blacklist;
 	}
 
 	public boolean isWorldGuard() {
