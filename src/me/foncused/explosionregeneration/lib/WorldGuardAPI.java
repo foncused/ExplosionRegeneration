@@ -1,10 +1,9 @@
 package me.foncused.explosionregeneration.lib;
 
-import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.Bukkit;
@@ -36,14 +35,7 @@ public class WorldGuardAPI {
 				final List<Block> filter = new ArrayList<>();
 				list.forEach(block -> {
 					final WorldGuardPlatform wgp = wg.getPlatform();
-					final ApplicableRegionSet regions = wgp.getRegionContainer().get(wgp.getWorldByName(block.getWorld().getName())).getApplicableRegions(
-							new BlockVector(
-									block.getX(),
-									block.getY(),
-									block.getZ()
-							)
-					);
-					if(testFlagDeny(regions, Flags.CREEPER_EXPLOSION) || testFlagDeny(regions, Flags.OTHER_EXPLOSION) || testFlagDeny(regions, Flags.TNT)) {
+					if(testFlagDeny(wgp, block, Flags.CREEPER_EXPLOSION) || testFlagDeny(wgp, block, Flags.OTHER_EXPLOSION) || testFlagDeny(wgp, block, Flags.TNT)) {
 						filter.add(block);
 					}
 				});
@@ -53,8 +45,8 @@ public class WorldGuardAPI {
 		return list;
 	}
 
-	private static boolean testFlagDeny(final ApplicableRegionSet regions, final StateFlag flag) {
-		return regions.queryState(null, flag) == StateFlag.State.DENY;
+	private static boolean testFlagDeny(final WorldGuardPlatform wgp, final Block block, final StateFlag flag) {
+		return (!(StateFlag.test(wgp.getRegionContainer().createQuery().queryState(BukkitAdapter.adapt(block.getLocation()), null, flag))));
 	}
 
 }
