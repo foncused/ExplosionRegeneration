@@ -21,12 +21,12 @@ import java.util.*;
 
 public class EntityExplode implements Listener {
 
-	private ExplosionRegeneration plugin;
-	private ConfigManager cm;
+	private final ExplosionRegeneration plugin;
+	private final ConfigManager cm;
 
-	public EntityExplode(final ExplosionRegeneration plugin, final ConfigManager cm) {
+	public EntityExplode(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
-		this.cm = cm;
+		this.cm = this.plugin.getConfigManager();
 	}
 
 	@EventHandler

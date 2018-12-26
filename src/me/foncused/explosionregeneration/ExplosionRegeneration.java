@@ -34,17 +34,15 @@ public class ExplosionRegeneration extends JavaPlugin {
 	}
 
 	private void registerCommands() {
-		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this.cm));
+		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this.getConfigManager()));
 	}
 
 	private void registerEvents() {
-		Bukkit.getPluginManager().registerEvents(
-				new EntityExplode(
-						this,
-						this.cm
-				),
-				this
-		);
+		Bukkit.getPluginManager().registerEvents(new EntityExplode(this), this);
+	}
+
+	public ConfigManager getConfigManager() {
+		return this.cm;
 	}
 
 }

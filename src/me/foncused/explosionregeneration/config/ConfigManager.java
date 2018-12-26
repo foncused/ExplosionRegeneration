@@ -83,10 +83,6 @@ public class ConfigManager {
 		return this.random;
 	}
 
-	public void setRandom(final boolean random) {
-		this.random = random;
-	}
-
 	public int getSpeed() {
 		return this.speed;
 	}
@@ -99,48 +95,24 @@ public class ConfigManager {
 		return this.delay;
 	}
 
-	public void setDelay(final int delay) {
-		this.delay = delay;
-	}
-
 	public Particle getParticle() {
 		return this.particle;
-	}
-
-	public void setParticle(final Particle particle) {
-		this.particle = particle;
 	}
 
 	public Sound getSound() {
 		return this.sound;
 	}
 
-	public void setSound(final Sound sound) {
-		this.sound = sound;
-	}
-
 	public Set<Material> getFilter() {
 		return this.filter;
-	}
-
-	public void setFilter(final Set<Material> filter) {
-		this.filter = filter;
 	}
 
 	public Set<String> getBlacklist() {
 		return this.blacklist;
 	}
 
-	public void setBlacklist(final Set<String> blacklist) {
-		this.blacklist = blacklist;
-	}
-
 	public boolean isWorldGuard() {
 		return this.worldguard;
-	}
-
-	public void setWorldGuard(final boolean worldguard) {
-		this.worldguard = worldguard;
 	}
 
 }

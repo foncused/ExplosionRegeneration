@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 
 public class BlockRegenSpeedCommand implements CommandExecutor {
 
-	private ConfigManager cm;
+	private final ConfigManager cm;
 
 	public BlockRegenSpeedCommand(final ConfigManager cm) {
 		this.cm = cm;
