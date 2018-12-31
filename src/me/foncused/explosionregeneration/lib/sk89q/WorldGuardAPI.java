@@ -1,4 +1,4 @@
-package me.foncused.explosionregeneration.lib;
+package me.foncused.explosionregeneration.lib.sk89q;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;

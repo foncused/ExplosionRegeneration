@@ -2,7 +2,7 @@ package me.foncused.explosionregeneration.event.entity;
 
 import me.foncused.explosionregeneration.ExplosionRegeneration;
 import me.foncused.explosionregeneration.config.ConfigManager;
-import me.foncused.explosionregeneration.lib.WorldGuardAPI;
+import me.foncused.explosionregeneration.lib.sk89q.WorldGuardAPI;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;

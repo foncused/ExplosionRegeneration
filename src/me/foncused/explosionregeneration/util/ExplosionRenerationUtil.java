@@ -1,8 +1,8 @@
-package me.foncused.explosionregeneration.utility;
+package me.foncused.explosionregeneration.util;
 
 import org.bukkit.Bukkit;
 
-public class ExplosionRenerationUtilities {
+public class ExplosionRenerationUtil {
 
 	private static final String PREFIX = "[ExplosionRegeneration] ";
 
