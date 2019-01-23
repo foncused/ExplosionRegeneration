@@ -99,6 +99,7 @@ public class EntityExplode implements Listener {
 			caches.put(block, cache);
 		}
 		new BukkitRunnable() {
+			@Override
 			public void run() {
 				try {
 					if(caches.size() == 0) {
@@ -194,6 +195,7 @@ public class EntityExplode implements Listener {
 	private void removeDrops(final World world, final EntityExplodeEvent event) {
 		event.setYield(0);
 		new BukkitRunnable() {
+			@Override
 			public void run() {
 				world.getEntitiesByClass(Item.class).stream().filter(item -> item.getLocation().distance(event.getLocation()) <= 20 && item.getType() == EntityType.DROPPED_ITEM).forEach(Item::remove);
 			}
