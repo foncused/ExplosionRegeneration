@@ -34,7 +34,7 @@ public class ExplosionRegeneration extends JavaPlugin {
 	}
 
 	private void registerCommands() {
-		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this.getConfigManager()));
+		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this.cm));
 	}
 
 	private void registerEvents() {
