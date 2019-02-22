@@ -35,7 +35,7 @@ public class WorldGuardAPI {
 				final List<Block> filter = new ArrayList<>();
 				list.forEach(block -> {
 					final WorldGuardPlatform wgp = wg.getPlatform();
-					if(testFlagDeny(wgp, block, Flags.CREEPER_EXPLOSION) || testFlagDeny(wgp, block, Flags.OTHER_EXPLOSION) || testFlagDeny(wgp, block, Flags.TNT)) {
+					if(testFlagDeny(wgp, block, Flags.CREEPER_EXPLOSION) || testFlagDeny(wgp, block, Flags.OTHER_EXPLOSION)/* || testFlagDeny(wgp, block, Flags.TNT)*/) {
 						filter.add(block);
 					}
 				});

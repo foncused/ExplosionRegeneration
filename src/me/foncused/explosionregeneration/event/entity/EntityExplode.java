@@ -35,6 +35,9 @@ public class EntityExplode implements Listener {
 		if(list.size() == 0) {
 			return;
 		}
+		final List<Block> air = new ArrayList<>();
+		list.stream().filter(block -> block.getType() == Material.AIR).forEach(air::add);
+		list.removeAll(air);
 		final World world = event.getLocation().getWorld();
 		final Set<String> blacklist = this.cm.getBlacklist();
 		if(blacklist != null && blacklist.contains(world.getName())) {
