@@ -46,13 +46,6 @@ public class ConfigManager {
 		}
 		ExplosionRenerationUtil.console("Set particle to " + this.particle.toString());
 		try {
-			this.particle = Particle.valueOf(particle.toUpperCase());
-		} catch(final IllegalArgumentException e) {
-			this.particle = Particle.VILLAGER_HAPPY;
-			ExplosionRenerationUtil.consoleWarning("Set particle to " + particle + " is not safe, reverting to default...");
-		}
-		ExplosionRenerationUtil.console("Set particle to " + this.particle.toString());
-		try {
 			this.sound = Sound.valueOf(sound.toUpperCase());
 		} catch(final IllegalArgumentException e) {
 			this.sound = Sound.ENTITY_CHICKEN_EGG;
@@ -79,39 +72,39 @@ public class ConfigManager {
 		ExplosionRenerationUtil.console(this.worldguard ? "WorldGuard mode enabled" : "WorldGuard mode disabled");
 	}
 
-	public boolean isRandom() {
+	public synchronized boolean isRandom() {
 		return this.random;
 	}
 
-	public int getSpeed() {
+	public synchronized int getSpeed() {
 		return this.speed;
 	}
 
-	public void setSpeed(final int speed) {
+	public synchronized void setSpeed(final int speed) {
 		this.speed = speed;
 	}
 
-	public int getDelay() {
+	public synchronized int getDelay() {
 		return this.delay;
 	}
 
-	public Particle getParticle() {
+	public synchronized Particle getParticle() {
 		return this.particle;
 	}
 
-	public Sound getSound() {
+	public synchronized Sound getSound() {
 		return this.sound;
 	}
 
-	public Set<Material> getFilter() {
+	public synchronized Set<Material> getFilter() {
 		return this.filter;
 	}
 
-	public Set<String> getBlacklist() {
+	public synchronized Set<String> getBlacklist() {
 		return this.blacklist;
 	}
 
-	public boolean isWorldGuard() {
+	public synchronized boolean isWorldGuard() {
 		return this.worldguard;
 	}
 
