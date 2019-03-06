@@ -72,39 +72,39 @@ public class ConfigManager {
 		ExplosionRenerationUtil.console(this.worldguard ? "WorldGuard mode enabled" : "WorldGuard mode disabled");
 	}
 
-	public synchronized boolean isRandom() {
+	public boolean isRandom() {
 		return this.random;
 	}
 
-	public synchronized int getSpeed() {
+	public int getSpeed() {
 		return this.speed;
 	}
 
-	public synchronized void setSpeed(final int speed) {
+	public void setSpeed(final int speed) {
 		this.speed = speed;
 	}
 
-	public synchronized int getDelay() {
+	public int getDelay() {
 		return this.delay;
 	}
 
-	public synchronized Particle getParticle() {
+	public Particle getParticle() {
 		return this.particle;
 	}
 
-	public synchronized Sound getSound() {
+	public Sound getSound() {
 		return this.sound;
 	}
 
-	public synchronized Set<Material> getFilter() {
+	public Set<Material> getFilter() {
 		return this.filter;
 	}
 
-	public synchronized Set<String> getBlacklist() {
+	public Set<String> getBlacklist() {
 		return this.blacklist;
 	}
 
-	public synchronized boolean isWorldGuard() {
+	public boolean isWorldGuard() {
 		return this.worldguard;
 	}
 
