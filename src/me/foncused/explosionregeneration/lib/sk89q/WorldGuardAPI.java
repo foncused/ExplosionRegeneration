@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class WorldGuardAPI {
@@ -42,7 +43,7 @@ public class WorldGuardAPI {
 				list.removeAll(filter);
 			}
 		}
-		return list;
+		return Collections.unmodifiableList(list);
 	}
 
 	private static boolean testFlagDeny(final WorldGuardPlatform wgp, final Block block, final StateFlag flag) {

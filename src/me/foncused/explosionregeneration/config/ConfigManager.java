@@ -21,7 +21,15 @@ public class ConfigManager {
 	private Set<String> blacklist;
 	private boolean worldguard;
 
-	public ConfigManager(final boolean random, final int speed, final int delay, final String particle, final String sound, final List<String> filter, final List<String> blacklist, final boolean worldguard) {
+	public ConfigManager(
+			final boolean random,
+			final int speed,
+			final int delay,
+			final String particle,
+			final String sound,
+			final List<String> filter,
+			final List<String> blacklist, final boolean worldguard
+	) {
 		this.random = random;
 		ExplosionRenerationUtil.console(this.random ? "Random mode enabled" : "Random mode disabled");
 		if(speed <= 0) {
@@ -97,11 +105,11 @@ public class ConfigManager {
 	}
 
 	public Set<Material> getFilter() {
-		return this.filter;
+		return Collections.unmodifiableSet(this.filter);
 	}
 
 	public Set<String> getBlacklist() {
-		return this.blacklist;
+		return Collections.unmodifiableSet(this.blacklist);
 	}
 
 	public boolean isWorldGuard() {
