@@ -22,13 +22,14 @@ public class ConfigManager {
 	private boolean worldguard;
 
 	public ConfigManager(
-			final boolean random,
-			final int speed,
-			final int delay,
-			final String particle,
-			final String sound,
-			final List<String> filter,
-			final List<String> blacklist, final boolean worldguard
+		final boolean random,
+		final int speed,
+		final int delay,
+		final String particle,
+		final String sound,
+		final List<String> filter,
+		final List<String> blacklist,
+		final boolean worldguard
 	) {
 		this.random = random;
 		ExplosionRenerationUtil.console(this.random ? "Random mode enabled" : "Random mode disabled");

@@ -221,12 +221,12 @@ class ExplosionCache {
 	}
 
 	private ExplosionCache(
-			final Material material,
-			final Location location,
-			final BlockData data,
-			final BlockState state,
-			final String[] sign,
-			final ItemStack[] inventory
+		final Material material,
+		final Location location,
+		final BlockData data,
+		final BlockState state,
+		final String[] sign,
+		final ItemStack[] inventory
 	) {
 		this.material = material;
 		this.location = location;
