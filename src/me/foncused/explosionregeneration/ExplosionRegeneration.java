@@ -22,19 +22,19 @@ public class ExplosionRegeneration extends JavaPlugin {
 		this.saveDefaultConfig();
 		final FileConfiguration config = this.getConfig();
 		this.cm = new ConfigManager(
-				config.getBoolean("random"),
-				config.getInt("speed"),
-				config.getInt("delay"),
-				config.getString("particle"),
-				config.getString("sound"),
+				config.getBoolean("random", true),
+				config.getInt("speed", 2),
+				config.getInt("delay", 0),
+				config.getString("particle", "VILLAGER_HAPPY"),
+				config.getString("sound", "ENTITY_CHICKEN_EGG"),
 				config.getStringList("filter"),
 				config.getStringList("blacklist"),
-				config.getBoolean("worldguard")
+				config.getBoolean("worldguard", false)
 		);
 	}
 
 	private void registerCommands() {
-		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this.cm));
+		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this));
 	}
 
 	private void registerEvents() {

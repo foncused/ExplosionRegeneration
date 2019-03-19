@@ -1,5 +1,6 @@
 package me.foncused.explosionregeneration.command;
 
+import me.foncused.explosionregeneration.ExplosionRegeneration;
 import me.foncused.explosionregeneration.config.ConfigManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -8,10 +9,12 @@ import org.bukkit.command.CommandSender;
 
 public class BlockRegenSpeedCommand implements CommandExecutor {
 
+	private final ExplosionRegeneration plugin;
 	private final ConfigManager cm;
 
-	public BlockRegenSpeedCommand(final ConfigManager cm) {
-		this.cm = cm;
+	public BlockRegenSpeedCommand(final ExplosionRegeneration plugin) {
+		this.plugin = plugin;
+		this.cm = this.plugin.getConfigManager();
 	}
 
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
