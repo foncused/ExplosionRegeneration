@@ -67,11 +67,22 @@ public class EntityExplode implements Listener {
 			);
 			Container container = null;
 			switch(material) {
-				case SIGN:
-				case WALL_SIGN:
+				case ACACIA_SIGN:
+				case ACACIA_WALL_SIGN:
+				case BIRCH_SIGN:
+				case BIRCH_WALL_SIGN:
+				case DARK_OAK_SIGN:
+				case DARK_OAK_WALL_SIGN:
+				case JUNGLE_SIGN:
+				case JUNGLE_WALL_SIGN:
+				case OAK_SIGN:
+				case OAK_WALL_SIGN:
+				case SPRUCE_SIGN:
+				case SPRUCE_WALL_SIGN:
+				case LEGACY_SIGN:
+				case LEGACY_WALL_SIGN:
 				case LEGACY_SIGN_POST: cache.setSignLines(((Sign) state).getLines()); break;
-				case CHEST:
-				case TRAPPED_CHEST: container = (Chest) state; break;
+				case CHEST: container = (Chest) state; break;
 				case SHULKER_BOX:
 				case BLACK_SHULKER_BOX:
 				case BROWN_SHULKER_BOX:
@@ -94,7 +105,9 @@ public class EntityExplode implements Listener {
 				case DROPPER: container = (Dropper) state; break;
 				case DISPENSER: container = (Dispenser) state; break;
 				case BREWING_STAND: container = (BrewingStand) state; break;
-				case BEACON: container = (Beacon) state; break;
+				case BARREL: container = (Barrel) state; break;
+				case BLAST_FURNACE: container = (BlastFurnace) state; break;
+				case SMOKER: container = (Smoker) state; break;
 			}
 			if(container != null) {
 				cache.setInventory(container.getInventory().getContents());
@@ -137,8 +150,20 @@ public class EntityExplode implements Listener {
 					final ItemStack[] inventory = cache.getInventory();
 					Container container = null;
 					switch(material) {
-						case SIGN:
-						case WALL_SIGN:
+						case ACACIA_SIGN:
+						case ACACIA_WALL_SIGN:
+						case BIRCH_SIGN:
+						case BIRCH_WALL_SIGN:
+						case DARK_OAK_SIGN:
+						case DARK_OAK_WALL_SIGN:
+						case JUNGLE_SIGN:
+						case JUNGLE_WALL_SIGN:
+						case OAK_SIGN:
+						case OAK_WALL_SIGN:
+						case SPRUCE_SIGN:
+						case SPRUCE_WALL_SIGN:
+						case LEGACY_SIGN:
+						case LEGACY_WALL_SIGN:
 						case LEGACY_SIGN_POST:
 							final Sign sign = (Sign) block.getState();
 							final String[] lines = cache.getSignLines();
@@ -148,8 +173,7 @@ public class EntityExplode implements Listener {
 							sign.setLine(3, lines[3]);
 							sign.update();
 							break;
-						case CHEST:
-						case TRAPPED_CHEST: container = (Chest) state; break;
+						case CHEST: container = (Chest) state; break;
 						case SHULKER_BOX:
 						case BLACK_SHULKER_BOX:
 						case BROWN_SHULKER_BOX:
@@ -172,13 +196,15 @@ public class EntityExplode implements Listener {
 						case DROPPER: container = (Dropper) state; break;
 						case DISPENSER: container = (Dispenser) state; break;
 						case BREWING_STAND: container = (BrewingStand) state; break;
-						case BEACON: container = (Beacon) state; break;
+						case BARREL: container = (Barrel) state; break;
+						case BLAST_FURNACE: container = (BlastFurnace) state; break;
+						case SMOKER: container = (Smoker) state; break;
 					}
 					if(container != null) {
 						container.getInventory().setContents(inventory);
 						container.update();
 					}
-					world.playEffect(location, Effect.STEP_SOUND, material == Material.AIR ? block.getType().getId() : material.getId());
+					world.playEffect(location, Effect.STEP_SOUND, material == Material.AIR ? block.getType() : material);
 					world.spawnParticle(cm.getParticle(), location.add(0, 1, 0), 1, 0, 0, 0);
 					world.playSound(location, cm.getSound(), 1F, 1F);
 					caches.remove(block);
