@@ -31,7 +31,7 @@
                 <version>3.8.1</version>
                 <configuration>
                     <fork>true</fork>
-                    <executable>C:\Program Files\AdoptOpenJDK\jdk-8.0.222.10-hotspot\bin\javac.exe</executable>
+                    <executable>C:\Program Files\AdoptOpenJDK\jdk-8.0.232.09-hotspot\bin\javac.exe</executable>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
