@@ -44,10 +44,6 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <repository>
-            <id>spigot</id>
-            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-        </repository>
         <!-- WorldEdit/WorldGuard -->
         <repository>
             <id>sk89q-snapshots</id>
@@ -59,13 +55,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.15-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.15-R0.1-SNAPSHOT</version>
+            <version>1.15.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- WorldEdit -->
