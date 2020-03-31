@@ -3,19 +3,26 @@ package me.foncused.explosionregeneration;
 import me.foncused.explosionregeneration.command.BlockRegenSpeedCommand;
 import me.foncused.explosionregeneration.config.ConfigManager;
 import me.foncused.explosionregeneration.event.entity.EntityExplode;
+import me.foncused.explosionregeneration.lib.sk89q.WorldGuardHook;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ExplosionRegeneration extends JavaPlugin {
 
+	private WorldGuardHook worldguard;
 	private ConfigManager cm;
 
 	@Override
 	public void onEnable() {
+		this.loadDependencies();
 		this.registerConfig();
 		this.registerCommands();
 		this.registerEvents();
+	}
+
+	private void loadDependencies() {
+		this.worldguard = new WorldGuardHook();
 	}
 
 	private void registerConfig() {
@@ -39,6 +46,10 @@ public class ExplosionRegeneration extends JavaPlugin {
 
 	private void registerEvents() {
 		Bukkit.getPluginManager().registerEvents(new EntityExplode(this), this);
+	}
+
+	public WorldGuardHook getWorldGuard() {
+		return this.worldguard;
 	}
 
 	public ConfigManager getConfigManager() {

@@ -2,12 +2,10 @@ package me.foncused.explosionregeneration.event.entity;
 
 import me.foncused.explosionregeneration.ExplosionRegeneration;
 import me.foncused.explosionregeneration.config.ConfigManager;
-import me.foncused.explosionregeneration.lib.sk89q.WorldGuardAPI;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import me.foncused.explosionregeneration.lib.sk89q.WorldGuardHook;
+import org.bukkit.*;
 import org.bukkit.block.*;
+import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -22,10 +20,12 @@ import java.util.*;
 public class EntityExplode implements Listener {
 
 	private final ExplosionRegeneration plugin;
+	private final WorldGuardHook worldguard;
 	private final ConfigManager cm;
 
 	public EntityExplode(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
+		this.worldguard = this.plugin.getWorldGuard();
 		this.cm = this.plugin.getConfigManager();
 	}
 
@@ -44,7 +44,8 @@ public class EntityExplode implements Listener {
 			return;
 		}
 		if(this.cm.isWorldGuard()) {
-			list = WorldGuardAPI.filter(list);
+			//list = WorldGuardAPI.filter(list);
+			list = this.worldguard.getExplosionFiltered(list);
 			if(list.size() == 0) {
 				return;
 			}
@@ -82,6 +83,40 @@ public class EntityExplode implements Listener {
 				case LEGACY_SIGN:
 				case LEGACY_WALL_SIGN:
 				case LEGACY_SIGN_POST: cache.setSignLines(((Sign) state).getLines()); break;
+				case BLACK_BANNER:
+				case BLACK_WALL_BANNER:
+				case BROWN_BANNER:
+				case BROWN_WALL_BANNER:
+				case BLUE_BANNER:
+				case BLUE_WALL_BANNER:
+				case CYAN_BANNER:
+				case CYAN_WALL_BANNER:
+				case GRAY_BANNER:
+				case GRAY_WALL_BANNER:
+				case LIGHT_BLUE_BANNER:
+				case LIGHT_BLUE_WALL_BANNER:
+				case GREEN_BANNER:
+				case GREEN_WALL_BANNER:
+				case LIGHT_GRAY_BANNER:
+				case LIGHT_GRAY_WALL_BANNER:
+				case LIME_BANNER:
+				case LIME_WALL_BANNER:
+				case MAGENTA_BANNER:
+				case MAGENTA_WALL_BANNER:
+				case ORANGE_BANNER:
+				case ORANGE_WALL_BANNER:
+				case PINK_BANNER:
+				case PINK_WALL_BANNER:
+				case PURPLE_BANNER:
+				case PURPLE_WALL_BANNER:
+				case RED_BANNER:
+				case RED_WALL_BANNER:
+				case YELLOW_BANNER:
+				case YELLOW_WALL_BANNER:
+					final Banner banner = (Banner) state;
+					cache.setDyeColor(banner.getBaseColor());
+					cache.setPatterns(banner.getPatterns());
+					break;
 				case CHEST: container = (Chest) state; break;
 				case SHULKER_BOX:
 				case BLACK_SHULKER_BOX:
@@ -173,6 +208,41 @@ public class EntityExplode implements Listener {
 							sign.setLine(3, lines[3]);
 							sign.update();
 							break;
+						case BLACK_BANNER:
+						case BLACK_WALL_BANNER:
+						case BROWN_BANNER:
+						case BROWN_WALL_BANNER:
+						case BLUE_BANNER:
+						case BLUE_WALL_BANNER:
+						case CYAN_BANNER:
+						case CYAN_WALL_BANNER:
+						case GRAY_BANNER:
+						case GRAY_WALL_BANNER:
+						case LIGHT_BLUE_BANNER:
+						case LIGHT_BLUE_WALL_BANNER:
+						case GREEN_BANNER:
+						case GREEN_WALL_BANNER:
+						case LIGHT_GRAY_BANNER:
+						case LIGHT_GRAY_WALL_BANNER:
+						case LIME_BANNER:
+						case LIME_WALL_BANNER:
+						case MAGENTA_BANNER:
+						case MAGENTA_WALL_BANNER:
+						case ORANGE_BANNER:
+						case ORANGE_WALL_BANNER:
+						case PINK_BANNER:
+						case PINK_WALL_BANNER:
+						case PURPLE_BANNER:
+						case PURPLE_WALL_BANNER:
+						case RED_BANNER:
+						case RED_WALL_BANNER:
+						case YELLOW_BANNER:
+						case YELLOW_WALL_BANNER:
+							final Banner banner = (Banner) state;
+							banner.setBaseColor(cache.getDyeColor());
+							banner.setPatterns(cache.getPatterns());
+							banner.update();
+							break;
 						case CHEST: container = (Chest) state; break;
 						case SHULKER_BOX:
 						case BLACK_SHULKER_BOX:
@@ -241,9 +311,11 @@ class ExplosionCache {
 	private String[] sign;
 	private BlockState state;
 	private ItemStack[] inventory;
+	private DyeColor color;
+	private List<Pattern> patterns;
 
 	ExplosionCache(final Material material, final Location location, final BlockData data, final BlockState state) {
-		this(material, location, data, state, null, null);
+		this(material, location, data, state, null, null, null, null);
 	}
 
 	private ExplosionCache(
@@ -252,7 +324,9 @@ class ExplosionCache {
 		final BlockData data,
 		final BlockState state,
 		final String[] sign,
-		final ItemStack[] inventory
+		final ItemStack[] inventory,
+		final DyeColor color,
+		final List<Pattern> patterns
 	) {
 		this.material = material;
 		this.location = location;
@@ -260,6 +334,8 @@ class ExplosionCache {
 		this.state = state;
 		this.sign = sign;
 		this.inventory = inventory;
+		this.color = color;
+		this.patterns = patterns;
 	}
 
 	Material getMaterial() {
@@ -308,6 +384,22 @@ class ExplosionCache {
 
 	void setInventory(final ItemStack[] inventory) {
 		this.inventory = inventory;
+	}
+
+	DyeColor getDyeColor() {
+		return this.color;
+	}
+
+	void setDyeColor(final DyeColor color) {
+		this.color = color;
+	}
+
+	List<Pattern> getPatterns() {
+		return this.patterns;
+	}
+
+	void setPatterns(final List<Pattern> patterns) {
+		this.patterns = patterns;
 	}
 
 }
