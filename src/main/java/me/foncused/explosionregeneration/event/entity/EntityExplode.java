@@ -241,7 +241,7 @@ public class EntityExplode implements Listener {
 							final Banner banner = (Banner) state;
 							banner.setBaseColor(cache.getDyeColor());
 							banner.setPatterns(cache.getPatterns());
-							banner.update();
+							banner.update(true);
 							break;
 						case CHEST: container = (Chest) state; break;
 						case SHULKER_BOX:
@@ -272,7 +272,7 @@ public class EntityExplode implements Listener {
 					}
 					if(container != null) {
 						container.getInventory().setContents(inventory);
-						container.update();
+						container.update(true);
 					}
 					world.playEffect(location, Effect.STEP_SOUND, material == Material.AIR ? block.getType() : material);
 					world.spawnParticle(cm.getParticle(), location.add(0, 1, 0), 1, 0, 0, 0);
