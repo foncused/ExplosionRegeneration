@@ -162,9 +162,7 @@ public class EntityExplode implements Listener {
 			}
 			if(container != null) {
 				final Inventory inventory = container.getInventory();
-				//Bukkit.broadcastMessage(inventory.getSize() + "");
 				cache.setInventory(inventory.getContents());
-				//inventory.clear();
 				inventories.add(inventory);
 			}
 			caches.put(block, cache);
