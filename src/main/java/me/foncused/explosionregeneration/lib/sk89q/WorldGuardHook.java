@@ -14,7 +14,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class WorldGuardHook {
@@ -51,7 +50,7 @@ public class WorldGuardHook {
 		return (!(StateFlag.test(this.platform.getRegionContainer().createQuery().queryState(BukkitAdapter.adapt(location), null, flag))));
 	}
 
-	public List<Block> getExplosionFiltered(final List<Block> blocks) {
+	public void getExplosionFiltered(final List<Block> blocks) {
 		final PluginManager pm = Bukkit.getPluginManager();
 		if(pm.isPluginEnabled("WorldGuard") && pm.isPluginEnabled("WorldEdit")) {
 			final Plugin plugin = pm.getPlugin("WorldGuard");
@@ -59,7 +58,6 @@ public class WorldGuardHook {
 				final FileConfiguration config = plugin.getConfig();
 				if(config.getBoolean("ignition.block-tnt") || config.getBoolean("ignition.block-tnt-block-damage")) {
 					blocks.clear();
-					return blocks;
 				}
 				final List<Block> filter = new ArrayList<>();
 				blocks.forEach(block -> {
@@ -71,7 +69,6 @@ public class WorldGuardHook {
 				blocks.removeAll(filter);
 			}
 		}
-		return Collections.unmodifiableList(blocks);
 	}
 
 }

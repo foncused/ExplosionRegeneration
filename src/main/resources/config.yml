@@ -1,5 +1,5 @@
 # @plugin ExplosionRegeneration
-# @version 1.3.8
+# @version 1.3.9
 # @author foncused
 
 # Do you want blocks to regenerate in random order?
@@ -16,9 +16,11 @@ speed: 2
 delay: 0
 
 # Which particle effect would you like to use?
+# To disable a particle effect, set to an empty string ""
 particle: "VILLAGER_HAPPY"
 
 # Which sound would you like to use?
+# To disable a sound effect, set to an empty string ""
 sound: "ENTITY_CHICKEN_EGG"
 
 # Which blocks should NOT be regenerated?
@@ -27,7 +29,7 @@ filter:
 
 # In which worlds should ExplosionRegeneration NOT regenerate blocks?
 blacklist:
-  - "lobby"
+  - ""
 
 # Should ExplosionRegeneration honor WorldGuard's config and region flags?
 # Setting this to true requires both WorldGuard and WorldEdit as dependencies

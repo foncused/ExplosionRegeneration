@@ -25,8 +25,8 @@ public class ConfigManager {
 		final boolean random,
 		final int speed,
 		final int delay,
-		final String particle,
-		final String sound,
+		String particle,
+		String sound,
 		final List<String> filter,
 		final List<String> blacklist,
 		final boolean worldguard
@@ -48,19 +48,27 @@ public class ConfigManager {
 		}
 		ExplosionRenerationUtil.console("Set delay to " + this.delay + " ticks");
 		try {
-			this.particle = Particle.valueOf(particle.toUpperCase());
+			if(particle.equals("")) {
+				particle = null;
+			} else {
+				this.particle = Particle.valueOf(particle.toUpperCase());
+			}
 		} catch(final IllegalArgumentException e) {
 			this.particle = Particle.VILLAGER_HAPPY;
 			ExplosionRenerationUtil.consoleWarning("Set particle to " + particle + " is not safe, reverting to default...");
 		}
-		ExplosionRenerationUtil.console("Set particle to " + this.particle.toString());
+		ExplosionRenerationUtil.console(particle == null ? "Disabled particle" : "Set particle to " + this.particle.toString());
 		try {
-			this.sound = Sound.valueOf(sound.toUpperCase());
+			if(sound.isEmpty()) {
+				sound = null;
+			} else {
+				this.sound = Sound.valueOf(sound.toUpperCase());
+			}
 		} catch(final IllegalArgumentException e) {
 			this.sound = Sound.ENTITY_CHICKEN_EGG;
 			ExplosionRenerationUtil.consoleWarning("Set sound to " + sound + " is not safe, reverting to default...");
 		}
-		ExplosionRenerationUtil.console("Set sound to " + this.sound.toString());
+		ExplosionRenerationUtil.console(sound == null ? "Disabled sound" : "Set sound to " + this.sound.toString());
 		this.filter = new HashSet<>();
 		filter.forEach(material -> {
 			Material m;

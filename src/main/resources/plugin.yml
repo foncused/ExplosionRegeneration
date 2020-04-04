@@ -1,6 +1,6 @@
 name: ExplosionRegeneration
 main: me.foncused.explosionregeneration.ExplosionRegeneration
-version: 1.3.8
+version: 1.3.9
 author: foncused
 api-version: 1.15
 softdepend: [WorldEdit, WorldGuard]
@@ -8,7 +8,7 @@ softdepend: [WorldEdit, WorldGuard]
 commands:
   blockregenspeed:
     usage: /<command>
-    aliases: [brs]
+    aliases: []
     description: Change block regeneration speed
 
 permissions:

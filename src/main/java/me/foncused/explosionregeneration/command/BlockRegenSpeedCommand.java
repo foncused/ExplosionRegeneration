@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class BlockRegenSpeedCommand implements CommandExecutor {
 
@@ -19,7 +20,7 @@ public class BlockRegenSpeedCommand implements CommandExecutor {
 
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
 		if(cmd.getName().equalsIgnoreCase("blockregenspeed")) {
-			if(sender.hasPermission("explosionregeneration.blockregenspeed")) {
+			if((!(sender instanceof Player)) || sender.isOp() || sender.hasPermission("explosionregeneration.blockregenspeed")) {
 				if(args.length == 1) {
 					try {
 						final int speed = Integer.parseInt(args[0]);

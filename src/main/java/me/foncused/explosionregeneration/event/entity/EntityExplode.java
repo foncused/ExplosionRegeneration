@@ -7,14 +7,17 @@ import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Comparator;
 import java.util.*;
 
 public class EntityExplode implements Listener {
@@ -31,29 +34,42 @@ public class EntityExplode implements Listener {
 
 	@EventHandler
 	public void onEntityExplodeEvent(final EntityExplodeEvent event) {
-		List<Block> list = event.blockList();
+		final List<Block> list = event.blockList();
 		if(list.size() == 0) {
 			return;
 		}
 		final List<Block> air = new ArrayList<>();
 		list.stream().filter(block -> block.getType() == Material.AIR).forEach(air::add);
 		list.removeAll(air);
-		final World world = event.getLocation().getWorld();
 		final Set<String> blacklist = this.cm.getBlacklist();
-		if(blacklist != null && blacklist.contains(world.getName())) {
+		final Location location = event.getLocation();
+		final World world = location.getWorld();
+		try {
+			if(blacklist != null && blacklist.contains(world.getName())) {
+				return;
+			}
+		} catch(final NullPointerException e) {
 			return;
 		}
 		if(this.cm.isWorldGuard()) {
-			//list = WorldGuardAPI.filter(list);
-			list = this.worldguard.getExplosionFiltered(list);
+			this.worldguard.getExplosionFiltered(list);
 			if(list.size() == 0) {
 				return;
 			}
 		}
-		this.removeDrops(world, event);
+		event.setYield(0F);
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				world.getEntitiesByClass(Item.class)
+						.stream()
+						.filter(item -> item.getLocation().distance(location) <= 8.0 && item.getType() == EntityType.DROPPED_ITEM)
+						.forEach(Entity::remove);
+			}
+		}.runTaskLater(this.plugin, 1);
 		final Map<Block, ExplosionCache> caches = new HashMap<>();
+		final List<Inventory> inventories = new ArrayList<>();
 		for(final Block block : list) {
-			block.getDrops().clear();
 			final Material material = block.getType();
 			final Set<Material> filter = this.cm.getFilter();
 			if(filter != null && filter.contains(material)) {
@@ -145,45 +161,90 @@ public class EntityExplode implements Listener {
 				case SMOKER: container = (Smoker) state; break;
 			}
 			if(container != null) {
-				cache.setInventory(container.getInventory().getContents());
+				final Inventory inventory = container.getInventory();
+				//Bukkit.broadcastMessage(inventory.getSize() + "");
+				cache.setInventory(inventory.getContents());
+				//inventory.clear();
+				inventories.add(inventory);
 			}
 			caches.put(block, cache);
 		}
+		inventories.forEach(Inventory::clear);
+		if(this.cm.isRandom()) {
+			Collections.shuffle(list);
+		} else {
+			list.sort(Comparator.comparingDouble(b -> b.getLocation().getY()));
+		}
+		// Regeneration
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				try {
-					if(caches.size() == 0) {
-						removeDrops(world, event);
+					if(list.size() == 0) {
+						// Restore container contents
+						caches.forEach((block, cache) -> {
+							final Material material = cache.getMaterial();
+							final BlockState state = cache.getBlockState();
+							Container container = null;
+							switch(material) {
+								case CHEST: container = (Chest) state; break;
+								case SHULKER_BOX:
+								case BLACK_SHULKER_BOX:
+								case BROWN_SHULKER_BOX:
+								case BLUE_SHULKER_BOX:
+								case CYAN_SHULKER_BOX:
+								case GRAY_SHULKER_BOX:
+								case LIGHT_BLUE_SHULKER_BOX:
+								case GREEN_SHULKER_BOX:
+								case LIGHT_GRAY_SHULKER_BOX:
+								case LIME_SHULKER_BOX:
+								case MAGENTA_SHULKER_BOX:
+								case ORANGE_SHULKER_BOX:
+								case PINK_SHULKER_BOX:
+								case PURPLE_SHULKER_BOX:
+								case RED_SHULKER_BOX:
+								case YELLOW_SHULKER_BOX:
+								case WHITE_SHULKER_BOX: container = (ShulkerBox) state; break;
+								case FURNACE: container = (Furnace) state; break;
+								case HOPPER: container = (Hopper) state; break;
+								case DROPPER: container = (Dropper) state; break;
+								case DISPENSER: container = (Dispenser) state; break;
+								case BREWING_STAND: container = (BrewingStand) state; break;
+								case BARREL: container = (Barrel) state; break;
+								case BLAST_FURNACE: container = (BlastFurnace) state; break;
+								case SMOKER: container = (Smoker) state; break;
+							}
+							if(container != null) {
+								try {
+									container.getInventory().setContents(cache.getInventory());
+									container.update(true);
+								} catch(final IllegalArgumentException e) {
+									final Location l = cache.getLocation();
+									Bukkit.getLogger()
+											.severe(
+													"Could not restore container contents at " +
+															"(" + l.getBlockX() + ", " + l.getBlockY() + ", " + l.getBlockZ() + "). " +
+															"This is likely due to multiple explosions occurring in the same area."
+											);
+								}
+							}
+						});
 						this.cancel();
 						return;
 					}
-					Block block;
-					final List<Block> blocks = new ArrayList<>(caches.keySet());
-					if(cm.isRandom()) {
-						block = blocks.get(new Random().nextInt(blocks.size()));
-					} else {
-						int min = 0;
-						for(int i = 0; i < blocks.size(); i++) {
-							if(blocks.get(i).getY() < blocks.get(min).getY()) {
-								min = i;
-							}
-						}
-						block = blocks.get(min);
-					}
+					final Block block = list.get(0);
 					final ExplosionCache cache = caches.get(block);
 					final BlockData data = cache.getBlockData();
 					if(data == null) {
+						list.remove(block);
 						return;
 					}
 					final Material material = cache.getMaterial();
-					final Location location = cache.getLocation();
-					final Block replace = location.getBlock();
+					final Location l = cache.getLocation();
+					final Block replace = l.getBlock();
 					replace.setType(material);
 					replace.setBlockData(data);
 					final BlockState state = cache.getBlockState();
-					final ItemStack[] inventory = cache.getInventory();
-					Container container = null;
 					switch(material) {
 						case ACACIA_SIGN:
 						case ACACIA_WALL_SIGN:
@@ -200,7 +261,7 @@ public class EntityExplode implements Listener {
 						case LEGACY_SIGN:
 						case LEGACY_WALL_SIGN:
 						case LEGACY_SIGN_POST:
-							final Sign sign = (Sign) block.getState();
+							final Sign sign = (Sign) state;
 							final String[] lines = cache.getSignLines();
 							sign.setLine(0, lines[0]);
 							sign.setLine(1, lines[1]);
@@ -243,62 +304,24 @@ public class EntityExplode implements Listener {
 							banner.setPatterns(cache.getPatterns());
 							banner.update(true);
 							break;
-						case CHEST: container = (Chest) state; break;
-						case SHULKER_BOX:
-						case BLACK_SHULKER_BOX:
-						case BROWN_SHULKER_BOX:
-						case BLUE_SHULKER_BOX:
-						case CYAN_SHULKER_BOX:
-						case GRAY_SHULKER_BOX:
-						case LIGHT_BLUE_SHULKER_BOX:
-						case GREEN_SHULKER_BOX:
-						case LIGHT_GRAY_SHULKER_BOX:
-						case LIME_SHULKER_BOX:
-						case MAGENTA_SHULKER_BOX:
-						case ORANGE_SHULKER_BOX:
-						case PINK_SHULKER_BOX:
-						case PURPLE_SHULKER_BOX:
-						case RED_SHULKER_BOX:
-						case YELLOW_SHULKER_BOX:
-						case WHITE_SHULKER_BOX: container = (ShulkerBox) state; break;
-						case FURNACE: container = (Furnace) state; break;
-						case HOPPER: container = (Hopper) state; break;
-						case DROPPER: container = (Dropper) state; break;
-						case DISPENSER: container = (Dispenser) state; break;
-						case BREWING_STAND: container = (BrewingStand) state; break;
-						case BARREL: container = (Barrel) state; break;
-						case BLAST_FURNACE: container = (BlastFurnace) state; break;
-						case SMOKER: container = (Smoker) state; break;
 					}
-					if(container != null) {
-						container.getInventory().setContents(inventory);
-						container.update(true);
+					world.playEffect(l, Effect.STEP_SOUND, material == Material.AIR ? block.getType() : material);
+					final Sound sound = cm.getSound();
+					if(sound != null) {
+						world.playSound(l, sound, 1F, 1F);
 					}
-					world.playEffect(location, Effect.STEP_SOUND, material == Material.AIR ? block.getType() : material);
-					world.spawnParticle(cm.getParticle(), location.add(0, 1, 0), 1, 0, 0, 0);
-					world.playSound(location, cm.getSound(), 1F, 1F);
-					caches.remove(block);
+					final Particle particle = cm.getParticle();
+					if(particle != null) {
+						world.spawnParticle(particle, l.add(0, 1, 0), 1, 0, 0, 0);
+					}
+					list.remove(block);
 				} catch(final Exception e) {
 					e.printStackTrace();
 					this.cancel();
 				}
 			}
 		}.runTaskTimer(this.plugin, this.cm.getDelay(), this.cm.getSpeed());
-		list.forEach(block -> {
-			block.getDrops().clear();
-			block.setType(Material.AIR);
-		});
-		this.removeDrops(world, event);
-	}
-
-	private void removeDrops(final World world, final EntityExplodeEvent event) {
-		event.setYield(0);
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				world.getEntitiesByClass(Item.class).stream().filter(item -> item.getLocation().distance(event.getLocation()) <= 20 && item.getType() == EntityType.DROPPED_ITEM).forEach(Item::remove);
-			}
-		}.runTaskLater(this.plugin, 5);
+		list.forEach(block -> block.setType(Material.AIR));
 	}
 
 }
