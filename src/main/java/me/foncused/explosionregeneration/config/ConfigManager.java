@@ -17,6 +17,8 @@ public class ConfigManager {
 	private int delay;
 	private Particle particle;
 	private Sound sound;
+	private boolean tntChainingEnabled;
+	private int tntChainingMaxFuseTicks;
 	private Set<Material> filter;
 	private Set<String> blacklist;
 	private boolean worldguard;
@@ -27,6 +29,8 @@ public class ConfigManager {
 		final int delay,
 		String particle,
 		String sound,
+		final boolean tntChainingEnabled,
+		final int tntChainingMaxFuseTicks,
 		final List<String> filter,
 		final List<String> blacklist,
 		final boolean worldguard
@@ -69,6 +73,15 @@ public class ConfigManager {
 			ExplosionRenerationUtil.consoleWarning("Set sound to " + sound + " is not safe, reverting to default...");
 		}
 		ExplosionRenerationUtil.console(sound == null ? "Disabled sound" : "Set sound to " + this.sound.toString());
+		this.tntChainingEnabled = tntChainingEnabled;
+		ExplosionRenerationUtil.console(this.tntChainingEnabled ? "Chaining mode enabled" : "Chaining mode disabled");
+		if(tntChainingMaxFuseTicks <= 0 || tntChainingMaxFuseTicks > 200) {
+			this.tntChainingMaxFuseTicks = 20;
+			ExplosionRenerationUtil.consoleWarning("Set chaining max fuse ticks to " + tntChainingMaxFuseTicks + " ticks is not safe, reverting to default...");
+		} else {
+			this.tntChainingMaxFuseTicks = tntChainingMaxFuseTicks;
+		}
+		ExplosionRenerationUtil.console("Set chaining max fuse ticks to " + this.tntChainingMaxFuseTicks + " ticks");
 		this.filter = new HashSet<>();
 		filter.forEach(material -> {
 			Material m;
@@ -111,6 +124,14 @@ public class ConfigManager {
 
 	public Sound getSound() {
 		return this.sound;
+	}
+
+	public boolean isTntChainingEnabled() {
+		return this.tntChainingEnabled;
+	}
+
+	public int getTntChainingMaxFuseTicks() {
+		return this.tntChainingMaxFuseTicks;
 	}
 
 	public Set<Material> getFilter() {

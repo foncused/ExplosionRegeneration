@@ -34,6 +34,8 @@ public class ExplosionRegeneration extends JavaPlugin {
 				config.getInt("delay", 0),
 				config.getString("particle", "VILLAGER_HAPPY"),
 				config.getString("sound", "ENTITY_CHICKEN_EGG"),
+				config.getBoolean("tnt-chaining.enabled", false),
+				config.getInt("tnt-chaining.max-fuse-ticks", 40),
 				config.getStringList("filter"),
 				config.getStringList("blacklist"),
 				config.getBoolean("worldguard", false)

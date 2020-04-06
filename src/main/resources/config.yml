@@ -1,5 +1,5 @@
 # @plugin ExplosionRegeneration
-# @version 1.3.9
+# @version 1.3.10
 # @author foncused
 
 # Do you want blocks to regenerate in random order?
@@ -22,6 +22,11 @@ particle: "VILLAGER_HAPPY"
 # Which sound would you like to use?
 # To disable a sound effect, set to an empty string ""
 sound: "ENTITY_CHICKEN_EGG"
+
+# Should TNT be exploded in a chain reaction, similar to how it would normally?
+tnt-chaining:
+  enabled: false
+  max-fuse-ticks: 40
 
 # Which blocks should NOT be regenerated?
 filter:

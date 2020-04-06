@@ -10,6 +10,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -56,6 +57,16 @@ public class EntityExplode implements Listener {
 			if(list.size() == 0) {
 				return;
 			}
+		}
+		if(this.cm.isTntChainingEnabled()) {
+			final List<Block> tnt = new ArrayList<>();
+			list.stream().filter(block -> block.getType() == Material.TNT).forEach(tnt::add);
+			tnt.forEach(block -> {
+				block.setType(Material.AIR);
+				final TNTPrimed entity = (TNTPrimed) world.spawnEntity(block.getLocation(), EntityType.PRIMED_TNT);
+				entity.setFuseTicks(new Random().nextInt(this.cm.getTntChainingMaxFuseTicks()) + 1);
+			});
+			list.removeAll(tnt);
 		}
 		event.setYield(0F);
 		new BukkitRunnable() {
