@@ -243,7 +243,13 @@ public class EntityExplode implements Listener {
 					}
 					final Block block = list.get(0);
 					final ExplosionCache cache = caches.get(block);
-					final BlockData data = cache.getBlockData();
+					BlockData data;
+					try {
+						data = cache.getBlockData();
+					} catch(final NullPointerException e) {
+						list.remove(block);
+						return;
+					}
 					if(data == null) {
 						list.remove(block);
 						return;
