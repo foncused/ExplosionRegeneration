@@ -19,6 +19,7 @@ public class ConfigManager {
 	private Sound sound;
 	private boolean tntChainingEnabled;
 	private int tntChainingMaxFuseTicks;
+	private boolean fallingBlocks;
 	private Set<Material> filter;
 	private Set<String> blacklist;
 	private boolean worldguard;
@@ -31,6 +32,7 @@ public class ConfigManager {
 		String sound,
 		final boolean tntChainingEnabled,
 		final int tntChainingMaxFuseTicks,
+		final boolean fallingBlocks,
 		final List<String> filter,
 		final List<String> blacklist,
 		final boolean worldguard
@@ -82,6 +84,8 @@ public class ConfigManager {
 			this.tntChainingMaxFuseTicks = tntChainingMaxFuseTicks;
 		}
 		ExplosionRenerationUtil.console("Set chaining max fuse ticks to " + this.tntChainingMaxFuseTicks + " ticks");
+		this.fallingBlocks = fallingBlocks;
+		ExplosionRenerationUtil.console(this.fallingBlocks ? "Falling blocks enabled" : "Falling blocks disabled");
 		this.filter = new HashSet<>();
 		filter.forEach(material -> {
 			Material m;
@@ -132,6 +136,10 @@ public class ConfigManager {
 
 	public int getTntChainingMaxFuseTicks() {
 		return this.tntChainingMaxFuseTicks;
+	}
+
+	public boolean isFallingBlocks() {
+		return this.fallingBlocks;
 	}
 
 	public Set<Material> getFilter() {

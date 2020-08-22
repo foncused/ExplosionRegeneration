@@ -7,16 +7,15 @@ import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.Comparator;
 import java.util.*;
@@ -26,11 +25,13 @@ public class EntityExplode implements Listener {
 	private final ExplosionRegeneration plugin;
 	private final WorldGuardHook worldguard;
 	private final ConfigManager cm;
+	private final List<FallingBlock> fallingBlocks;
 
 	public EntityExplode(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
 		this.worldguard = this.plugin.getWorldGuard();
 		this.cm = this.plugin.getConfigManager();
+		this.fallingBlocks = new ArrayList<>();
 	}
 
 	@EventHandler
@@ -45,6 +46,11 @@ public class EntityExplode implements Listener {
 		final Set<String> blacklist = this.cm.getBlacklist();
 		final Location location = event.getLocation();
 		final World world = location.getWorld();
+		if(world == null) {
+			Bukkit.getLogger().warning("World is null, cannot regenerate explosion at (" +
+					location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ").");
+			return;
+		}
 		try {
 			if(blacklist != null && blacklist.contains(world.getName())) {
 				return;
@@ -57,6 +63,21 @@ public class EntityExplode implements Listener {
 			if(list.size() == 0) {
 				return;
 			}
+		}
+		if(this.cm.isFallingBlocks()) {
+			list.forEach(block -> {
+				final FallingBlock falling = world.spawnFallingBlock(block.getLocation(), block.getBlockData());
+				falling.setDropItem(false);
+				final Random random = new Random();
+				falling.setVelocity(
+						new Vector(
+								random.nextBoolean() ? random.nextDouble() : -random.nextDouble(),
+								random.nextDouble(),
+								random.nextBoolean() ? random.nextDouble() : -random.nextDouble()
+						)
+				);
+				this.fallingBlocks.add(falling);
+			});
 		}
 		if(this.cm.isTntChainingEnabled()) {
 			final List<Block> tnt = new ArrayList<>();
@@ -337,6 +358,14 @@ public class EntityExplode implements Listener {
 			}
 		}.runTaskTimer(this.plugin, this.cm.getDelay(), this.cm.getSpeed());
 		list.forEach(block -> block.setType(Material.AIR));
+	}
+
+	@EventHandler
+	public void onEntityChangeBlock(final EntityChangeBlockEvent event) {
+		final Entity entity = event.getEntity();
+		if(entity instanceof FallingBlock && this.fallingBlocks.remove(entity)) {
+			event.setCancelled(true);
+		}
 	}
 
 }
