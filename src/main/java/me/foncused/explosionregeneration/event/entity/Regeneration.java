@@ -20,14 +20,14 @@ import org.bukkit.util.Vector;
 import java.util.Comparator;
 import java.util.*;
 
-public class EntityExplode implements Listener {
+public class Regeneration implements Listener {
 
 	private final ExplosionRegeneration plugin;
 	private final WorldGuardHook worldguard;
 	private final ConfigManager cm;
 	private final List<FallingBlock> fallingBlocks;
 
-	public EntityExplode(final ExplosionRegeneration plugin) {
+	public Regeneration(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
 		this.worldguard = this.plugin.getWorldGuard();
 		this.cm = this.plugin.getConfigManager();
