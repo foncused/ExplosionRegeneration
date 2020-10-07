@@ -22,6 +22,9 @@ public class ConfigManager {
 	private boolean fallingBlocks;
 	private Set<Material> filter;
 	private Set<String> blacklist;
+	private boolean dropsEnabled;
+	private double dropsRadius;
+	private Set<Material> dropsBlacklist;
 	private boolean worldguard;
 
 	public ConfigManager(
@@ -35,6 +38,9 @@ public class ConfigManager {
 		final boolean fallingBlocks,
 		final List<String> filter,
 		final List<String> blacklist,
+		final boolean dropsEnabled,
+		final double dropsRadius,
+		final List<String> dropsBlacklist,
 		final boolean worldguard
 	) {
 		this.random = random;
@@ -77,13 +83,15 @@ public class ConfigManager {
 		ExplosionRenerationUtil.console(sound == null ? "Disabled sound" : "Set sound to " + this.sound.toString());
 		this.tntChainingEnabled = tntChainingEnabled;
 		ExplosionRenerationUtil.console(this.tntChainingEnabled ? "Chaining mode enabled" : "Chaining mode disabled");
-		if(tntChainingMaxFuseTicks <= 0 || tntChainingMaxFuseTicks > 200) {
-			this.tntChainingMaxFuseTicks = 20;
-			ExplosionRenerationUtil.consoleWarning("Set chaining max fuse ticks to " + tntChainingMaxFuseTicks + " ticks is not safe, reverting to default...");
-		} else {
-			this.tntChainingMaxFuseTicks = tntChainingMaxFuseTicks;
+		if(this.tntChainingEnabled) {
+			if(tntChainingMaxFuseTicks <= 0 || tntChainingMaxFuseTicks > 200) {
+				this.tntChainingMaxFuseTicks = 20;
+				ExplosionRenerationUtil.consoleWarning("Set chaining max fuse ticks to " + tntChainingMaxFuseTicks + " ticks is not safe, reverting to default...");
+			} else {
+				this.tntChainingMaxFuseTicks = tntChainingMaxFuseTicks;
+			}
+			ExplosionRenerationUtil.console("Set chaining max fuse ticks to " + this.tntChainingMaxFuseTicks + " ticks");
 		}
-		ExplosionRenerationUtil.console("Set chaining max fuse ticks to " + this.tntChainingMaxFuseTicks + " ticks");
 		this.fallingBlocks = fallingBlocks;
 		ExplosionRenerationUtil.console(this.fallingBlocks ? "Falling blocks enabled" : "Falling blocks disabled");
 		this.filter = new HashSet<>();
@@ -102,6 +110,29 @@ public class ConfigManager {
 		this.blacklist = new HashSet<>();
 		this.blacklist.addAll(blacklist);
 		this.blacklist = Collections.unmodifiableSet(this.blacklist);
+		this.dropsEnabled = dropsEnabled;
+		ExplosionRenerationUtil.console(this.dropsEnabled ? "Drops enabled" : "Drops disabled");
+		if(dropsRadius < 0.0) {
+			this.dropsRadius = 4.0;
+			ExplosionRenerationUtil.consoleWarning("Set drops radius to " + dropsRadius + " is not safe, reverting to default...");
+		} else {
+			this.dropsRadius = dropsRadius;
+		}
+		ExplosionRenerationUtil.console("Set drops radius to " + this.dropsRadius);
+		if(this.dropsEnabled) {
+			this.dropsBlacklist = new HashSet<>();
+			dropsBlacklist.forEach(material -> {
+				Material m;
+				try {
+					m = Material.valueOf(material.toUpperCase());
+					this.dropsBlacklist.add(m);
+					ExplosionRenerationUtil.console("Material " + m.toString() + " is filtered from item drops");
+				} catch(final IllegalArgumentException e) {
+					ExplosionRenerationUtil.consoleWarning("Material " + material + " is invalid, skipping...");
+				}
+			});
+			this.dropsBlacklist = Collections.unmodifiableSet(this.dropsBlacklist);
+		}
 		this.worldguard = worldguard;
 		ExplosionRenerationUtil.console(this.worldguard ? "WorldGuard mode enabled" : "WorldGuard mode disabled");
 	}
@@ -148,6 +179,18 @@ public class ConfigManager {
 
 	public Set<String> getBlacklist() {
 		return Collections.unmodifiableSet(this.blacklist);
+	}
+
+	public boolean isDropsEnabled() {
+		return this.dropsEnabled;
+	}
+
+	public double getDropsRadius() {
+		return this.dropsRadius;
+	}
+
+	public Set<Material> getDropsBlacklist() {
+		return this.dropsBlacklist;
 	}
 
 	public boolean isWorldGuard() {

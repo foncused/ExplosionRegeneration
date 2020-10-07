@@ -1,5 +1,5 @@
 # @plugin ExplosionRegeneration
-# @version 1.4.0
+# @version 1.4.1
 # @author foncused
 
 # Do you want blocks to regenerate in random order?
@@ -38,6 +38,56 @@ filter:
 # In which worlds should ExplosionRegeneration NOT regenerate blocks?
 blacklist:
   - ""
+
+# Should item drops from explosions be enabled?
+drops:
+  # Disabled by default to prevent item dupes
+  enabled: false
+  # Radius outward from explosion to check for item drop removal
+  radius: 4.0
+  # If enabled is set to true, the following items will still be removed
+  # If enabled is set to false, the blacklist below is irrelevant
+  blacklist:
+    - "ARMOR_STAND"
+    - "BARREL"
+    - "BEACON"
+    - "BLACK_SHULKER_BOX"
+    - "BLAST_FURNACE"
+    - "BLUE_SHULKER_BOX"
+    - "BREWING_STAND"
+    - "BROWN_SHULKER_BOX"
+    - "CHEST"
+    - "CHEST_MINECART"
+    - "CYAN_SHULKER_BOX"
+    - "DIAMOND_BLOCK"
+    - "DISPENSER"
+    - "DROPPER"
+    - "EMERALD_BLOCK"
+    - "FIRE"
+    - "FURNACE"
+    - "FURNACE_MINECART"
+    - "GOLD_BLOCK"
+    - "GRAY_SHULKER_BOX"
+    - "GREEN_SHULKER_BOX"
+    - "HOPPER"
+    - "HOPPER_MINECART"
+    - "IRON_BLOCK"
+    - "ITEM_FRAME"
+    - "LIGHT_BLUE_SHULKER_BOX"
+    - "LIGHT_GRAY_SHULKER_BOX"
+    - "LIME_SHULKER_BOX"
+    - "MAGENTA_SHULKER_BOX"
+    - "ORANGE_SHULKER_BOX"
+    - "PINK_SHULKER_BOX"
+    - "PURPLE_SHULKER_BOX"
+    - "RED_SHULKER_BOX"
+    - "SHULKER_BOX"
+    - "SMOKER"
+    - "TNT"
+    - "TNT_MINECART"
+    - "TRAPPED_CHEST"
+    - "WHITE_SHULKER_BOX"
+    - "YELLOW_SHULKER_BOX"
 
 # Should ExplosionRegeneration honor WorldGuard's config and region flags?
 # Setting this to true requires both WorldGuard and WorldEdit as dependencies

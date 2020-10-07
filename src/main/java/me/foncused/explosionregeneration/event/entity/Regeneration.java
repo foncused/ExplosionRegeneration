@@ -64,10 +64,20 @@ public class Regeneration implements Listener {
 				return;
 			}
 		}
+		final boolean dropsEnabled = this.cm.isDropsEnabled();
+		final Set<Material> dropsBlacklist = this.cm.getDropsBlacklist();
 		if(this.cm.isFallingBlocks()) {
 			list.forEach(block -> {
-				final FallingBlock falling = world.spawnFallingBlock(block.getLocation(), block.getBlockData());
+				final BlockData data = block.getBlockData();
+				final FallingBlock falling = world.spawnFallingBlock(block.getLocation(), data);
 				falling.setDropItem(false);
+				final Material material = data.getMaterial();
+				if(dropsEnabled && (!(dropsBlacklist.contains(material)))) {
+					world.dropItemNaturally(
+							block.getLocation().add(0, 1, 0),
+							new ItemStack(material, 1)
+					);
+				}
 				final Random random = new Random();
 				falling.setVelocity(
 						new Vector(
@@ -78,6 +88,16 @@ public class Regeneration implements Listener {
 				);
 				this.fallingBlocks.add(falling);
 			});
+		} else if(dropsEnabled) {
+			list
+					.stream()
+					.filter(block -> (!(dropsBlacklist.contains(block.getBlockData().getMaterial()))))
+					.forEach(block ->
+							world.dropItemNaturally(
+									block.getLocation().add(0, 1, 0),
+									new ItemStack(block.getBlockData().getMaterial(), 1)
+							)
+					);
 		}
 		if(this.cm.isTntChainingEnabled()) {
 			final List<Block> tnt = new ArrayList<>();
@@ -89,16 +109,32 @@ public class Regeneration implements Listener {
 			});
 			list.removeAll(tnt);
 		}
-		event.setYield(0F);
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				world.getEntitiesByClass(Item.class)
-						.stream()
-						.filter(item -> item.getLocation().distance(location) <= 8.0 && item.getType() == EntityType.DROPPED_ITEM)
-						.forEach(Entity::remove);
-			}
-		}.runTaskLater(this.plugin, 1);
+		final double distance = this.cm.getDropsRadius() * 2;
+		if(dropsEnabled) {
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					world.getEntitiesByClass(Item.class)
+							.stream()
+							.filter(item -> item.getLocation().distance(location) <= distance
+									&& item.getType() == EntityType.DROPPED_ITEM
+									&& dropsBlacklist.contains(item.getItemStack().getType()))
+							.forEach(Entity::remove);
+				}
+			}.runTaskLater(this.plugin, 1);
+		} else {
+			event.setYield(0F);
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					world.getEntitiesByClass(Item.class)
+							.stream()
+							.filter(item -> item.getLocation().distance(location) <= distance
+									&& item.getType() == EntityType.DROPPED_ITEM)
+							.forEach(Entity::remove);
+				}
+			}.runTaskLater(this.plugin, 1);
+		}
 		final Map<Block, ExplosionCache> caches = new HashMap<>();
 		final List<Inventory> inventories = new ArrayList<>();
 		for(final Block block : list) {
