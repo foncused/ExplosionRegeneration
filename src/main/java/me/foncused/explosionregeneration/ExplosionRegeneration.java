@@ -10,8 +10,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class ExplosionRegeneration extends JavaPlugin {
 
-	private WorldGuardHook worldguard;
 	private ConfigManager cm;
+	private WorldGuardHook worldguard;
 
 	@Override
 	public void onEnable() {

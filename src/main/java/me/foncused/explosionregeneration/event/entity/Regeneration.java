@@ -23,8 +23,8 @@ import java.util.*;
 public class Regeneration implements Listener {
 
 	private final ExplosionRegeneration plugin;
-	private final WorldGuardHook worldguard;
 	private final ConfigManager cm;
+	private final WorldGuardHook worldguard;
 	private final List<FallingBlock> fallingBlocks;
 
 	public Regeneration(final ExplosionRegeneration plugin) {
