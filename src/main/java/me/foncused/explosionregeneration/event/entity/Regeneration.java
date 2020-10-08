@@ -201,7 +201,8 @@ public class Regeneration implements Listener {
 					cache.setDyeColor(banner.getBaseColor());
 					cache.setPatterns(banner.getPatterns());
 					break;
-				case CHEST: container = (Chest) state; break;
+				case CHEST:
+				case TRAPPED_CHEST: container = (Chest) state; break;
 				case SHULKER_BOX:
 				case BLACK_SHULKER_BOX:
 				case BROWN_SHULKER_BOX:
@@ -253,7 +254,8 @@ public class Regeneration implements Listener {
 							final BlockState state = cache.getBlockState();
 							Container container = null;
 							switch(material) {
-								case CHEST: container = (Chest) state; break;
+								case CHEST:
+								case TRAPPED_CHEST: container = (Chest) state; break;
 								case SHULKER_BOX:
 								case BLACK_SHULKER_BOX:
 								case BROWN_SHULKER_BOX:
