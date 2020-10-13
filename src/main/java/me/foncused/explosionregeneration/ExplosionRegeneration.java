@@ -16,9 +16,9 @@ public class ExplosionRegeneration extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		this.registerConfig();
+		this.registerWorldGuard();
 		this.registerCommands();
 		this.registerEvents();
-		this.registerWorldGuard();
 	}
 
 	private void registerConfig() {
@@ -42,6 +42,12 @@ public class ExplosionRegeneration extends JavaPlugin {
 		);
 	}
 
+	private void registerWorldGuard() {
+		if(this.cm.isWorldGuard()) {
+			this.worldguard = new WorldGuardHook();
+		}
+	}
+
 	private void registerCommands() {
 		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this));
 	}
@@ -50,18 +56,12 @@ public class ExplosionRegeneration extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new Regeneration(this), this);
 	}
 
-	private void registerWorldGuard() {
-		if(this.cm.isWorldGuard()) {
-			this.worldguard = new WorldGuardHook();
-		}
+	public ConfigManager getConfigManager() {
+		return this.cm;
 	}
 
 	public WorldGuardHook getWorldGuard() {
 		return this.worldguard;
-	}
-
-	public ConfigManager getConfigManager() {
-		return this.cm;
 	}
 
 }
