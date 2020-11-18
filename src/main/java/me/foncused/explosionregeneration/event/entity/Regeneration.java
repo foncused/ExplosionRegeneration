@@ -29,8 +29,8 @@ public class Regeneration implements Listener {
 
 	public Regeneration(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
-		this.worldguard = this.plugin.getWorldGuard();
 		this.cm = this.plugin.getConfigManager();
+		this.worldguard = this.plugin.getWorldGuard();
 		this.fallingBlocks = new ArrayList<>();
 	}
 
