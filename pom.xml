@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.foncused</groupId>
     <artifactId>explosionregeneration</artifactId>
-    <version>1.4.3</version>
+    <version>1.4.4</version>
     <packaging>jar</packaging>
     <name>ExplosionRegeneration</name>
     <url>https://github.com/foncused/ExplosionRegeneration</url>

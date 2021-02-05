@@ -35,8 +35,9 @@ public class ExplosionRegeneration extends JavaPlugin {
 				config.getBoolean("falling-blocks", false),
 				config.getStringList("filter"),
 				config.getStringList("blacklist"),
+				config.getBoolean("entity-protection", true),
 				config.getBoolean("drops.enabled", false),
-				config.getDouble("drops.radius", 4.0),
+				config.getDouble("drops.radius", 6.0),
 				config.getStringList("drops.blacklist"),
 				config.getBoolean("worldguard", false)
 		);

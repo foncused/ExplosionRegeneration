@@ -1,5 +1,5 @@
 # @plugin ExplosionRegeneration
-# @version 1.4.3
+# @version 1.4.4
 # @author foncused
 
 # Do you want blocks to regenerate in random order?
@@ -39,12 +39,15 @@ filter:
 blacklist:
   - ""
 
+# Entity protection (Armor Stands, Item Frames, Paintings)
+entity-protection: true
+
 # Should item drops from explosions be enabled?
 drops:
   # Disabled by default to prevent item dupes
   enabled: false
   # Radius outward from explosion to check for item drop removal
-  radius: 4.0
+  radius: 6.0
   # If enabled is set to true, the following items will still be removed
   # If enabled is set to false, the blacklist below is irrelevant
   blacklist:

@@ -22,6 +22,7 @@ public class ConfigManager {
 	private boolean fallingBlocks;
 	private Set<Material> filter;
 	private Set<String> blacklist;
+	private boolean entityProtection;
 	private boolean dropsEnabled;
 	private double dropsRadius;
 	private Set<Material> dropsBlacklist;
@@ -38,6 +39,7 @@ public class ConfigManager {
 		final boolean fallingBlocks,
 		final List<String> filter,
 		final List<String> blacklist,
+		final boolean entityProtection,
 		final boolean dropsEnabled,
 		final double dropsRadius,
 		final List<String> dropsBlacklist,
@@ -110,6 +112,8 @@ public class ConfigManager {
 		this.blacklist = new HashSet<>();
 		this.blacklist.addAll(blacklist);
 		this.blacklist = Collections.unmodifiableSet(this.blacklist);
+		this.entityProtection = entityProtection;
+		ExplosionRenerationUtil.console(this.entityProtection ? "Entities protected" : "Entities unprotected");
 		this.dropsEnabled = dropsEnabled;
 		ExplosionRenerationUtil.console(this.dropsEnabled ? "Drops enabled" : "Drops disabled");
 		if(dropsRadius < 0.0) {
@@ -179,6 +183,10 @@ public class ConfigManager {
 
 	public Set<String> getBlacklist() {
 		return Collections.unmodifiableSet(this.blacklist);
+	}
+
+	public boolean isEntityProtection() {
+		return this.entityProtection;
 	}
 
 	public boolean isDropsEnabled() {
