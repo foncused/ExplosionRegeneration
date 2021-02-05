@@ -30,7 +30,7 @@ public class Regeneration implements Listener {
 	private final List<FallingBlock> fallingBlocks;
 	private final Set<UUID> entities;
 	private final Map<UUID, ItemStack[]> armorStands;
-	private final Map<UUID, ItemStack> itemFrames;
+	private final Map<UUID, ItemFrameCache> itemFrames;
 	private final Map<UUID, Art> paintings;
 	private int time;
 
@@ -369,11 +369,13 @@ public class Regeneration implements Listener {
 											}
 											break;
 										case ITEM_FRAME:
-											final ItemStack stack = itemFrames.get(uuid);
-											if(stack != null) {
+											final ItemFrameCache cache = itemFrames.get(uuid);
+											if(cache != null) {
 												itemFrames.remove(uuid);
 												try {
-													((ItemFrame) world.spawnEntity(location, type)).setItem(stack);
+													final ItemFrame frame = ((ItemFrame) world.spawnEntity(location, type));
+													frame.setItem(cache.getItem());
+													frame.setRotation(cache.getRotation());
 												} catch(final IllegalArgumentException e) {
 													if(!(e.getMessage().contains("Cannot spawn hanging entity for org.bukkit.entity.ItemFrame"))) {
 														throw e;
@@ -402,7 +404,7 @@ public class Regeneration implements Listener {
 											try {
 												world.spawnEntity(location, type);
 											} catch(final IllegalArgumentException e) {
-												if(!(e.getMessage().contains("Cannot spawn an entity for org.bukkit.entity.Item"))) {
+												if(!(e.getMessage().matches("Cannot spawn an entity for org\\.bukkit\\.entity\\.(Item|Player)"))) {
 													throw e;
 												}
 											}
@@ -565,7 +567,8 @@ public class Regeneration implements Listener {
 					}
 				}.runTaskLater(this.plugin, this.time);
 				if(type == EntityType.ITEM_FRAME) {
-					this.itemFrames.put(uuid, ((ItemFrame) entity).getItem());
+					final ItemFrame frame = (ItemFrame) entity;
+					this.itemFrames.put(uuid, new ItemFrameCache(frame.getItem(), frame.getRotation()));
 					new BukkitRunnable() {
 						@Override
 						public void run() {
@@ -684,6 +687,37 @@ class ExplosionCache {
 
 	void setPatterns(final List<Pattern> patterns) {
 		this.patterns = patterns;
+	}
+
+}
+
+class ItemFrameCache {
+
+	private ItemStack stack;
+	private Rotation rotation;
+
+	ItemFrameCache(
+		final ItemStack stack,
+		final Rotation rotation
+	) {
+		this.stack = stack;
+		this.rotation = rotation;
+	}
+
+	ItemStack getItem() {
+		return this.stack;
+	}
+
+	void setItem(final ItemStack stack) {
+		this.stack = stack;
+	}
+
+	Rotation getRotation() {
+		return this.rotation;
+	}
+
+	void setRotation(final Rotation rotation) {
+		this.rotation = rotation;
 	}
 
 }
