@@ -2,7 +2,7 @@ package me.foncused.explosionregeneration;
 
 import me.foncused.explosionregeneration.command.BlockRegenSpeedCommand;
 import me.foncused.explosionregeneration.config.ConfigManager;
-import me.foncused.explosionregeneration.event.entity.Regeneration;
+import me.foncused.explosionregeneration.event.Regeneration;
 import me.foncused.explosionregeneration.lib.sk89q.WorldGuardHook;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -1,4 +1,4 @@
-package me.foncused.explosionregeneration.event.entity;
+package me.foncused.explosionregeneration.event;
 
 import me.foncused.explosionregeneration.ExplosionRegeneration;
 import me.foncused.explosionregeneration.config.ConfigManager;
