@@ -10,6 +10,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -46,13 +47,10 @@ public class Regeneration implements Listener {
 		this.time = this.cm.getDelay() + (250 * this.cm.getSpeed());
 	}
 
-	@EventHandler
-	public void onEntityExplode(final EntityExplodeEvent event) {
-		final List<Block> list = event.blockList();
+	private void regenerate(final List<Block> list, final Location location) {
 		if(list.size() == 0) {
 			return;
 		}
-		final Location location = event.getLocation();
 		final World world = location.getWorld();
 		if(world == null) {
 			Bukkit.getLogger().warning("World is null, cannot regenerate explosion at (" +
@@ -159,7 +157,7 @@ public class Regeneration implements Listener {
 				}
 			}.runTaskLater(this.plugin, 1);
 		} else {
-			event.setYield(0F);
+			//event.setYield(0F);
 			new BukkitRunnable() {
 				@Override
 				public void run() {
@@ -181,10 +179,10 @@ public class Regeneration implements Listener {
 			}
 			final BlockState state = block.getState();
 			final ExplosionCache cache = new ExplosionCache(
-				material,
-				block.getLocation(),
-				block.getBlockData(),
-				state
+					material,
+					block.getLocation(),
+					block.getBlockData(),
+					state
 			);
 			Container container = null;
 			switch(material) {
@@ -512,6 +510,22 @@ public class Regeneration implements Listener {
 			}
 		}.runTaskTimer(this.plugin, delay, speed);
 		list.forEach(block -> block.setType(Material.AIR));
+	}
+
+	@EventHandler
+	public void onBlockExplode(final BlockExplodeEvent event) {
+		if(!(this.cm.isDropsEnabled())) {
+			event.setYield(0F);
+		}
+		this.regenerate(event.blockList(), event.getBlock().getLocation());
+	}
+
+	@EventHandler
+	public void onEntityExplode(final EntityExplodeEvent event) {
+		if(!(this.cm.isDropsEnabled())) {
+			event.setYield(0F);
+		}
+		this.regenerate(event.blockList(), event.getLocation());
 	}
 
 	@EventHandler
