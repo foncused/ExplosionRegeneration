@@ -198,23 +198,22 @@ public class Regeneration implements Listener {
 				case OAK_WALL_SIGN:
 				case SPRUCE_SIGN:
 				case SPRUCE_WALL_SIGN:
-				case LEGACY_SIGN:
-				case LEGACY_WALL_SIGN:
-				case LEGACY_SIGN_POST: cache.setSignLines(((Sign) state).getLines()); break;
+					cache.setSignLines(((Sign) state).getLines());
+					break;
 				case BLACK_BANNER:
 				case BLACK_WALL_BANNER:
-				case BROWN_BANNER:
-				case BROWN_WALL_BANNER:
 				case BLUE_BANNER:
 				case BLUE_WALL_BANNER:
+				case BROWN_BANNER:
+				case BROWN_WALL_BANNER:
 				case CYAN_BANNER:
 				case CYAN_WALL_BANNER:
 				case GRAY_BANNER:
 				case GRAY_WALL_BANNER:
-				case LIGHT_BLUE_BANNER:
-				case LIGHT_BLUE_WALL_BANNER:
 				case GREEN_BANNER:
 				case GREEN_WALL_BANNER:
+				case LIGHT_BLUE_BANNER:
+				case LIGHT_BLUE_WALL_BANNER:
 				case LIGHT_GRAY_BANNER:
 				case LIGHT_GRAY_WALL_BANNER:
 				case LIME_BANNER:
@@ -229,6 +228,8 @@ public class Regeneration implements Listener {
 				case PURPLE_WALL_BANNER:
 				case RED_BANNER:
 				case RED_WALL_BANNER:
+				case WHITE_BANNER:
+				case WHITE_WALL_BANNER:
 				case YELLOW_BANNER:
 				case YELLOW_WALL_BANNER:
 					final Banner banner = (Banner) state;
@@ -242,15 +243,16 @@ public class Regeneration implements Listener {
 					inventories.add(inventory);
 					break;
 				case CHEST:
-				case TRAPPED_CHEST: container = (Chest) state; break;
-				case SHULKER_BOX:
+				case TRAPPED_CHEST:
+					container = (Chest) state;
+					break;
 				case BLACK_SHULKER_BOX:
-				case BROWN_SHULKER_BOX:
 				case BLUE_SHULKER_BOX:
+				case BROWN_SHULKER_BOX:
 				case CYAN_SHULKER_BOX:
 				case GRAY_SHULKER_BOX:
-				case LIGHT_BLUE_SHULKER_BOX:
 				case GREEN_SHULKER_BOX:
+				case LIGHT_BLUE_SHULKER_BOX:
 				case LIGHT_GRAY_SHULKER_BOX:
 				case LIME_SHULKER_BOX:
 				case MAGENTA_SHULKER_BOX:
@@ -258,16 +260,35 @@ public class Regeneration implements Listener {
 				case PINK_SHULKER_BOX:
 				case PURPLE_SHULKER_BOX:
 				case RED_SHULKER_BOX:
+				case SHULKER_BOX:
+				case WHITE_SHULKER_BOX:
 				case YELLOW_SHULKER_BOX:
-				case WHITE_SHULKER_BOX: container = (ShulkerBox) state; break;
-				case FURNACE: container = (Furnace) state; break;
-				case HOPPER: container = (Hopper) state; break;
-				case DROPPER: container = (Dropper) state; break;
-				case DISPENSER: container = (Dispenser) state; break;
-				case BREWING_STAND: container = (BrewingStand) state; break;
-				case BARREL: container = (Barrel) state; break;
-				case BLAST_FURNACE: container = (BlastFurnace) state; break;
-				case SMOKER: container = (Smoker) state; break;
+					container = (ShulkerBox) state;
+					break;
+				case FURNACE:
+					container = (Furnace) state;
+					break;
+				case HOPPER:
+					container = (Hopper) state;
+					break;
+				case DROPPER:
+					container = (Dropper) state;
+					break;
+				case DISPENSER:
+					container = (Dispenser) state;
+					break;
+				case BREWING_STAND:
+					container = (BrewingStand) state;
+					break;
+				case BARREL:
+					container = (Barrel) state;
+					break;
+				case BLAST_FURNACE:
+					container = (BlastFurnace) state;
+					break;
+				case SMOKER:
+					container = (Smoker) state;
+					break;
 			}
 			if(container != null) {
 				final Inventory inventory = container.getInventory();
@@ -317,15 +338,33 @@ public class Regeneration implements Listener {
 								case PURPLE_SHULKER_BOX:
 								case RED_SHULKER_BOX:
 								case YELLOW_SHULKER_BOX:
-								case WHITE_SHULKER_BOX: container = (ShulkerBox) state; break;
-								case FURNACE: container = (Furnace) state; break;
-								case HOPPER: container = (Hopper) state; break;
-								case DROPPER: container = (Dropper) state; break;
-								case DISPENSER: container = (Dispenser) state; break;
-								case BREWING_STAND: container = (BrewingStand) state; break;
-								case BARREL: container = (Barrel) state; break;
-								case BLAST_FURNACE: container = (BlastFurnace) state; break;
-								case SMOKER: container = (Smoker) state; break;
+								case WHITE_SHULKER_BOX:
+									container = (ShulkerBox) state;
+									break;
+								case FURNACE:
+									container = (Furnace) state;
+									break;
+								case HOPPER:
+									container = (Hopper) state;
+									break;
+								case DROPPER:
+									container = (Dropper) state;
+									break;
+								case DISPENSER:
+									container = (Dispenser) state;
+									break;
+								case BREWING_STAND:
+									container = (BrewingStand) state;
+									break;
+								case BARREL:
+									container = (Barrel) state;
+									break;
+								case BLAST_FURNACE:
+									container = (BlastFurnace) state;
+									break;
+								case SMOKER:
+									container = (Smoker) state;
+									break;
 							}
 							if(container != null) {
 								try {
@@ -446,9 +485,6 @@ public class Regeneration implements Listener {
 						case OAK_WALL_SIGN:
 						case SPRUCE_SIGN:
 						case SPRUCE_WALL_SIGN:
-						case LEGACY_SIGN:
-						case LEGACY_WALL_SIGN:
-						case LEGACY_SIGN_POST:
 							final Sign sign = (Sign) state;
 							final String[] lines = cache.getSignLines();
 							sign.setLine(0, lines[0]);
@@ -459,18 +495,18 @@ public class Regeneration implements Listener {
 							break;
 						case BLACK_BANNER:
 						case BLACK_WALL_BANNER:
-						case BROWN_BANNER:
-						case BROWN_WALL_BANNER:
 						case BLUE_BANNER:
 						case BLUE_WALL_BANNER:
+						case BROWN_BANNER:
+						case BROWN_WALL_BANNER:
 						case CYAN_BANNER:
 						case CYAN_WALL_BANNER:
 						case GRAY_BANNER:
 						case GRAY_WALL_BANNER:
-						case LIGHT_BLUE_BANNER:
-						case LIGHT_BLUE_WALL_BANNER:
 						case GREEN_BANNER:
 						case GREEN_WALL_BANNER:
+						case LIGHT_BLUE_BANNER:
+						case LIGHT_BLUE_WALL_BANNER:
 						case LIGHT_GRAY_BANNER:
 						case LIGHT_GRAY_WALL_BANNER:
 						case LIME_BANNER:
@@ -485,6 +521,8 @@ public class Regeneration implements Listener {
 						case PURPLE_WALL_BANNER:
 						case RED_BANNER:
 						case RED_WALL_BANNER:
+						case WHITE_BANNER:
+						case WHITE_WALL_BANNER:
 						case YELLOW_BANNER:
 						case YELLOW_WALL_BANNER:
 							final Banner banner = (Banner) state;
