@@ -1,8 +1,8 @@
 name: ExplosionRegeneration
 main: me.foncused.explosionregeneration.ExplosionRegeneration
-version: 1.4.6
+version: 1.4.7
 author: foncused
-api-version: 1.16
+api-version: 1.17
 softdepend: [WorldEdit, WorldGuard]
 
 commands:
