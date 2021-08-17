@@ -12,21 +12,21 @@ import java.util.Set;
 
 public class ConfigManager {
 
-	private boolean random;
+	private final boolean random;
 	private int speed;
 	private int delay;
 	private Particle particle;
 	private Sound sound;
-	private boolean tntChainingEnabled;
+	private final boolean tntChainingEnabled;
 	private int tntChainingMaxFuseTicks;
-	private boolean fallingBlocks;
+	private final boolean fallingBlocks;
 	private Set<Material> filter;
 	private Set<String> blacklist;
-	private boolean entityProtection;
-	private boolean dropsEnabled;
+	private final boolean entityProtection;
+	private final boolean dropsEnabled;
 	private double dropsRadius;
 	private Set<Material> dropsBlacklist;
-	private boolean worldguard;
+	private final boolean worldguard;
 
 	public ConfigManager(
 		final boolean random,
