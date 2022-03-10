@@ -6,6 +6,7 @@ import me.foncused.explosionregeneration.lib.sk89q.WorldGuardHook;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -48,15 +49,21 @@ public class Regeneration implements Listener {
 	}
 
 	private void regenerate(final List<Block> list, final Location location) {
+
+		// Do nothing if there is nothing to regenerate
 		if(list.size() == 0) {
 			return;
 		}
+
+		// Check if world is valid
 		final World world = location.getWorld();
 		if(world == null) {
 			Bukkit.getLogger().warning("World is null, cannot regenerate explosion at (" +
 					location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ").");
 			return;
 		}
+
+		// Calculate radius
 		double r = 0.0;
 		for(final Block block : list) {
 			final double distance = location.distance(block.getLocation());
@@ -65,12 +72,16 @@ public class Regeneration implements Listener {
 			}
 		}
 		final double radius = r + 1.0;
+
+		// Collect nearby entities within radius
 		Collection<Entity> nearby = null;
 		final boolean isEntityProtection = this.cm.isEntityProtection();
 		if(isEntityProtection) {
 			nearby = world.getNearbyEntities(location, radius, radius, radius);
 		}
 		final Collection<Entity> nearbyEntities = nearby;
+
+		// Filter out air for efficiency
 		final List<Block> air = new ArrayList<>();
 		list.stream().filter(block -> block.getType() == Material.AIR).forEach(air::add);
 		list.removeAll(air);
@@ -78,12 +89,16 @@ public class Regeneration implements Listener {
 		if(size == 0) {
 			return;
 		}
+
+		// Calculate timing
 		final int delay = this.cm.getDelay();
 		final int speed = this.cm.getSpeed();
 		final int regenerationTime = delay + (size * speed) + 1;
 		if(this.time < regenerationTime) {
 			this.time = regenerationTime;
 		}
+
+		// Check config blacklist
 		final Set<String> blacklist = this.cm.getBlacklist();
 		try {
 			if(blacklist != null && blacklist.contains(world.getName())) {
@@ -92,23 +107,28 @@ public class Regeneration implements Listener {
 		} catch(final NullPointerException e) {
 			return;
 		}
+
+		// Check config if using WorldGuard integration
 		if(this.cm.isWorldGuard()) {
 			this.worldguard.getExplosionFiltered(list);
 			if(list.size() == 0) {
 				return;
 			}
 		}
+
+		// Check config if drops are enabled and create falling blocks
 		final boolean dropsEnabled = this.cm.isDropsEnabled();
 		final Set<Material> dropsBlacklist = this.cm.getDropsBlacklist();
 		if(this.cm.isFallingBlocks()) {
 			list.forEach(block -> {
 				final BlockData data = block.getBlockData();
-				final FallingBlock falling = world.spawnFallingBlock(block.getLocation(), data);
+				final Location loc = block.getLocation();
+				final FallingBlock falling = world.spawnFallingBlock(loc, data);
 				falling.setDropItem(false);
 				final Material material = data.getMaterial();
 				if(dropsEnabled && (!(dropsBlacklist.contains(material)))) {
 					world.dropItemNaturally(
-							block.getLocation().add(0, 1, 0),
+							loc.add(0, 1, 0),
 							new ItemStack(material, 1)
 					);
 				}
@@ -133,6 +153,8 @@ public class Regeneration implements Listener {
 							)
 					);
 		}
+
+		// Check config if TNT chaining is enabled
 		if(this.cm.isTntChainingEnabled()) {
 			final List<Block> tnt = new ArrayList<>();
 			list.stream().filter(block -> block.getType() == Material.TNT).forEach(tnt::add);
@@ -144,31 +166,34 @@ public class Regeneration implements Listener {
 			list.removeAll(tnt);
 		}
 		final double distance = this.cm.getDropsRadius() * 2;
+
+		// Check config if drops are enabled and remove as necessary
 		if(dropsEnabled) {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
 					world.getEntitiesByClass(Item.class)
 							.stream()
-							.filter(item -> item.getLocation().distance(location) <= distance
-									&& item.getType() == EntityType.DROPPED_ITEM
-									&& dropsBlacklist.contains(item.getItemStack().getType()))
+							.filter(item -> item.getType() == EntityType.DROPPED_ITEM
+									&& dropsBlacklist.contains(item.getItemStack().getType())
+									&& item.getLocation().distance(location) <= distance)
 							.forEach(Entity::remove);
 				}
 			}.runTaskLater(this.plugin, 1);
 		} else {
-			//event.setYield(0F);
 			new BukkitRunnable() {
 				@Override
 				public void run() {
 					world.getEntitiesByClass(Item.class)
 							.stream()
-							.filter(item -> item.getLocation().distance(location) <= distance
-									&& item.getType() == EntityType.DROPPED_ITEM)
+							.filter(item -> item.getType() == EntityType.DROPPED_ITEM
+									&& item.getLocation().distance(location) <= distance)
 							.forEach(Entity::remove);
 				}
 			}.runTaskLater(this.plugin, 1);
 		}
+
+		// Collect block data for regeneration
 		final Map<Block, ExplosionCache> caches = new HashMap<>();
 		final List<Inventory> inventories = new ArrayList<>();
 		for(final Block block : list) {
@@ -186,109 +211,42 @@ public class Regeneration implements Listener {
 			);
 			Container container = null;
 			switch(material) {
-				case ACACIA_SIGN:
-				case ACACIA_WALL_SIGN:
-				case BIRCH_SIGN:
-				case BIRCH_WALL_SIGN:
-				case DARK_OAK_SIGN:
-				case DARK_OAK_WALL_SIGN:
-				case JUNGLE_SIGN:
-				case JUNGLE_WALL_SIGN:
-				case OAK_SIGN:
-				case OAK_WALL_SIGN:
-				case SPRUCE_SIGN:
-				case SPRUCE_WALL_SIGN:
-					cache.setSignLines(((Sign) state).getLines());
-					break;
-				case BLACK_BANNER:
-				case BLACK_WALL_BANNER:
-				case BLUE_BANNER:
-				case BLUE_WALL_BANNER:
-				case BROWN_BANNER:
-				case BROWN_WALL_BANNER:
-				case CYAN_BANNER:
-				case CYAN_WALL_BANNER:
-				case GRAY_BANNER:
-				case GRAY_WALL_BANNER:
-				case GREEN_BANNER:
-				case GREEN_WALL_BANNER:
-				case LIGHT_BLUE_BANNER:
-				case LIGHT_BLUE_WALL_BANNER:
-				case LIGHT_GRAY_BANNER:
-				case LIGHT_GRAY_WALL_BANNER:
-				case LIME_BANNER:
-				case LIME_WALL_BANNER:
-				case MAGENTA_BANNER:
-				case MAGENTA_WALL_BANNER:
-				case ORANGE_BANNER:
-				case ORANGE_WALL_BANNER:
-				case PINK_BANNER:
-				case PINK_WALL_BANNER:
-				case PURPLE_BANNER:
-				case PURPLE_WALL_BANNER:
-				case RED_BANNER:
-				case RED_WALL_BANNER:
-				case WHITE_BANNER:
-				case WHITE_WALL_BANNER:
-				case YELLOW_BANNER:
-				case YELLOW_WALL_BANNER:
+				// Signs
+				case ACACIA_SIGN, ACACIA_WALL_SIGN, BIRCH_SIGN, BIRCH_WALL_SIGN, CRIMSON_SIGN, CRIMSON_WALL_SIGN,
+						DARK_OAK_SIGN, DARK_OAK_WALL_SIGN, JUNGLE_SIGN, JUNGLE_WALL_SIGN, OAK_SIGN, OAK_WALL_SIGN,
+						SPRUCE_SIGN, SPRUCE_WALL_SIGN, WARPED_SIGN, WARPED_WALL_SIGN -> cache.setSignLines(((Sign) state).getLines());
+				// Banners
+				case BLACK_BANNER, BLACK_WALL_BANNER, BLUE_BANNER, BLUE_WALL_BANNER, BROWN_BANNER, BROWN_WALL_BANNER,
+						CYAN_BANNER, CYAN_WALL_BANNER, GRAY_BANNER, GRAY_WALL_BANNER, GREEN_BANNER, GREEN_WALL_BANNER,
+						LIGHT_BLUE_BANNER, LIGHT_BLUE_WALL_BANNER, LIGHT_GRAY_BANNER, LIGHT_GRAY_WALL_BANNER, LIME_BANNER,
+						LIME_WALL_BANNER, MAGENTA_BANNER, MAGENTA_WALL_BANNER, ORANGE_BANNER, ORANGE_WALL_BANNER, PINK_BANNER,
+						PINK_WALL_BANNER, PURPLE_BANNER, PURPLE_WALL_BANNER, RED_BANNER, RED_WALL_BANNER, WHITE_BANNER,
+						WHITE_WALL_BANNER, YELLOW_BANNER, YELLOW_WALL_BANNER -> {
 					final Banner banner = (Banner) state;
 					cache.setDyeColor(banner.getBaseColor());
 					cache.setPatterns(banner.getPatterns());
-					break;
-				case LECTERN:
+				}
+				// Containers
+				case BARREL -> container = (Barrel) state;
+				case BLAST_FURNACE -> container = (BlastFurnace) state;
+				case BREWING_STAND -> container = (BrewingStand) state;
+				case CHEST, TRAPPED_CHEST -> container = (Chest) state;
+				case DISPENSER -> container = (Dispenser) state;
+				case DROPPER -> container = (Dropper) state;
+				case FURNACE -> container = (Furnace) state;
+				case HOPPER -> container = (Hopper) state;
+				case BLACK_SHULKER_BOX, BLUE_SHULKER_BOX, BROWN_SHULKER_BOX, CYAN_SHULKER_BOX, GRAY_SHULKER_BOX,
+						GREEN_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX, LIGHT_GRAY_SHULKER_BOX, LIME_SHULKER_BOX,
+						MAGENTA_SHULKER_BOX, ORANGE_SHULKER_BOX, PINK_SHULKER_BOX, PURPLE_SHULKER_BOX, RED_SHULKER_BOX,
+						SHULKER_BOX, WHITE_SHULKER_BOX, YELLOW_SHULKER_BOX -> container = (ShulkerBox) state;
+				case SMOKER -> container = (Smoker) state;
+				// Lectern
+				case LECTERN -> {
 					final Lectern lectern = (Lectern) state;
 					final Inventory inventory = lectern.getInventory();
 					cache.setInventory(inventory.getContents());
 					inventories.add(inventory);
-					break;
-				case CHEST:
-				case TRAPPED_CHEST:
-					container = (Chest) state;
-					break;
-				case BLACK_SHULKER_BOX:
-				case BLUE_SHULKER_BOX:
-				case BROWN_SHULKER_BOX:
-				case CYAN_SHULKER_BOX:
-				case GRAY_SHULKER_BOX:
-				case GREEN_SHULKER_BOX:
-				case LIGHT_BLUE_SHULKER_BOX:
-				case LIGHT_GRAY_SHULKER_BOX:
-				case LIME_SHULKER_BOX:
-				case MAGENTA_SHULKER_BOX:
-				case ORANGE_SHULKER_BOX:
-				case PINK_SHULKER_BOX:
-				case PURPLE_SHULKER_BOX:
-				case RED_SHULKER_BOX:
-				case SHULKER_BOX:
-				case WHITE_SHULKER_BOX:
-				case YELLOW_SHULKER_BOX:
-					container = (ShulkerBox) state;
-					break;
-				case FURNACE:
-					container = (Furnace) state;
-					break;
-				case HOPPER:
-					container = (Hopper) state;
-					break;
-				case DROPPER:
-					container = (Dropper) state;
-					break;
-				case DISPENSER:
-					container = (Dispenser) state;
-					break;
-				case BREWING_STAND:
-					container = (BrewingStand) state;
-					break;
-				case BARREL:
-					container = (Barrel) state;
-					break;
-				case BLAST_FURNACE:
-					container = (BlastFurnace) state;
-					break;
-				case SMOKER:
-					container = (Smoker) state;
-					break;
+				}
 			}
 			if(container != null) {
 				final Inventory inventory = container.getInventory();
@@ -298,73 +256,54 @@ public class Regeneration implements Listener {
 			caches.put(block, cache);
 		}
 		inventories.forEach(Inventory::clear);
+
+		// Check config for randomized or sorted regeneration
 		if(this.cm.isRandom()) {
 			Collections.shuffle(list);
 		} else {
 			list.sort(Comparator.comparingDouble(b -> b.getLocation().getY()));
 		}
+
+		// Doors
+		final List<Block> doors = new ArrayList<>();
+		list.stream().filter(block -> this.isDoor(block.getType())).forEach(doors::add);
+		list.removeAll(doors);
+		doors.sort(Comparator.comparingDouble(b -> b.getLocation().getY()));
+		list.addAll(doors);
+
 		// Regeneration
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				try {
+					// Done, so do containers and entities last
 					if(list.size() == 0) {
-						// Restore container contents
 						caches.forEach((block, cache) -> {
 							final Material material = cache.getMaterial();
 							final BlockState state = cache.getBlockState();
 							Container container = null;
 							switch(material) {
-								case LECTERN:
+								// Containers
+								case BARREL -> container = (Barrel) state;
+								case BLAST_FURNACE -> container = (BlastFurnace) state;
+								case BREWING_STAND -> container = (BrewingStand) state;
+								case CHEST, TRAPPED_CHEST -> container = (Chest) state;
+								case DISPENSER -> container = (Dispenser) state;
+								case DROPPER -> container = (Dropper) state;
+								case FURNACE -> container = (Furnace) state;
+								case HOPPER -> container = (Hopper) state;
+								case BLACK_SHULKER_BOX, BLUE_SHULKER_BOX, BROWN_SHULKER_BOX, CYAN_SHULKER_BOX,
+										GRAY_SHULKER_BOX, GREEN_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX,
+										LIGHT_GRAY_SHULKER_BOX, LIME_SHULKER_BOX, MAGENTA_SHULKER_BOX,
+										ORANGE_SHULKER_BOX, PINK_SHULKER_BOX, PURPLE_SHULKER_BOX, RED_SHULKER_BOX,
+										SHULKER_BOX, WHITE_SHULKER_BOX, YELLOW_SHULKER_BOX -> container = (ShulkerBox) state;
+								case SMOKER -> container = (Smoker) state;
+								// Lectern
+								case LECTERN -> {
 									final Lectern lectern = (Lectern) state;
 									lectern.getInventory().setContents(cache.getInventory());
 									lectern.update(true);
-									break;
-								case CHEST:
-								case TRAPPED_CHEST: container = (Chest) state; break;
-								case SHULKER_BOX:
-								case BLACK_SHULKER_BOX:
-								case BROWN_SHULKER_BOX:
-								case BLUE_SHULKER_BOX:
-								case CYAN_SHULKER_BOX:
-								case GRAY_SHULKER_BOX:
-								case LIGHT_BLUE_SHULKER_BOX:
-								case GREEN_SHULKER_BOX:
-								case LIGHT_GRAY_SHULKER_BOX:
-								case LIME_SHULKER_BOX:
-								case MAGENTA_SHULKER_BOX:
-								case ORANGE_SHULKER_BOX:
-								case PINK_SHULKER_BOX:
-								case PURPLE_SHULKER_BOX:
-								case RED_SHULKER_BOX:
-								case YELLOW_SHULKER_BOX:
-								case WHITE_SHULKER_BOX:
-									container = (ShulkerBox) state;
-									break;
-								case FURNACE:
-									container = (Furnace) state;
-									break;
-								case HOPPER:
-									container = (Hopper) state;
-									break;
-								case DROPPER:
-									container = (Dropper) state;
-									break;
-								case DISPENSER:
-									container = (Dispenser) state;
-									break;
-								case BREWING_STAND:
-									container = (BrewingStand) state;
-									break;
-								case BARREL:
-									container = (Barrel) state;
-									break;
-								case BLAST_FURNACE:
-									container = (BlastFurnace) state;
-									break;
-								case SMOKER:
-									container = (Smoker) state;
-									break;
+								}
 							}
 							if(container != null) {
 								try {
@@ -453,6 +392,7 @@ public class Regeneration implements Listener {
 						this.cancel();
 						return;
 					}
+					// Blocks
 					final Block block = list.get(0);
 					final ExplosionCache cache = caches.get(block);
 					BlockData data;
@@ -469,22 +409,29 @@ public class Regeneration implements Listener {
 					final Material material = cache.getMaterial();
 					final Location l = cache.getLocation();
 					final Block replace = l.getBlock();
-					replace.setType(material);
-					replace.setBlockData(data);
+					// Doors
+					if(isDoor(material)) {
+						// If bottom half, restore the top with it too
+						if((!(isDoor(replace.getRelative(BlockFace.DOWN).getType())))) {
+							replace.setType(material);
+							replace.setBlockData(data);
+							final Block other = replace.getRelative(BlockFace.UP);
+							final Bisected bisected = (Bisected) data;
+							bisected.setHalf(Bisected.Half.BOTTOM);
+							replace.setBlockData(bisected, false);
+							bisected.setHalf(Bisected.Half.TOP);
+							other.setBlockData(bisected, false);
+						}
+					} else {
+						replace.setType(material);
+						replace.setBlockData(data);
+					}
 					final BlockState state = cache.getBlockState();
 					switch(material) {
-						case ACACIA_SIGN:
-						case ACACIA_WALL_SIGN:
-						case BIRCH_SIGN:
-						case BIRCH_WALL_SIGN:
-						case DARK_OAK_SIGN:
-						case DARK_OAK_WALL_SIGN:
-						case JUNGLE_SIGN:
-						case JUNGLE_WALL_SIGN:
-						case OAK_SIGN:
-						case OAK_WALL_SIGN:
-						case SPRUCE_SIGN:
-						case SPRUCE_WALL_SIGN:
+						// Signs
+						case ACACIA_SIGN, ACACIA_WALL_SIGN, BIRCH_SIGN, BIRCH_WALL_SIGN, CRIMSON_SIGN,
+								CRIMSON_WALL_SIGN, DARK_OAK_SIGN, DARK_OAK_WALL_SIGN, JUNGLE_SIGN, JUNGLE_WALL_SIGN,
+								OAK_SIGN, OAK_WALL_SIGN, SPRUCE_SIGN, SPRUCE_WALL_SIGN, WARPED_SIGN, WARPED_WALL_SIGN -> {
 							final Sign sign = (Sign) state;
 							final String[] lines = cache.getSignLines();
 							sign.setLine(0, lines[0]);
@@ -492,44 +439,20 @@ public class Regeneration implements Listener {
 							sign.setLine(2, lines[2]);
 							sign.setLine(3, lines[3]);
 							sign.update();
-							break;
-						case BLACK_BANNER:
-						case BLACK_WALL_BANNER:
-						case BLUE_BANNER:
-						case BLUE_WALL_BANNER:
-						case BROWN_BANNER:
-						case BROWN_WALL_BANNER:
-						case CYAN_BANNER:
-						case CYAN_WALL_BANNER:
-						case GRAY_BANNER:
-						case GRAY_WALL_BANNER:
-						case GREEN_BANNER:
-						case GREEN_WALL_BANNER:
-						case LIGHT_BLUE_BANNER:
-						case LIGHT_BLUE_WALL_BANNER:
-						case LIGHT_GRAY_BANNER:
-						case LIGHT_GRAY_WALL_BANNER:
-						case LIME_BANNER:
-						case LIME_WALL_BANNER:
-						case MAGENTA_BANNER:
-						case MAGENTA_WALL_BANNER:
-						case ORANGE_BANNER:
-						case ORANGE_WALL_BANNER:
-						case PINK_BANNER:
-						case PINK_WALL_BANNER:
-						case PURPLE_BANNER:
-						case PURPLE_WALL_BANNER:
-						case RED_BANNER:
-						case RED_WALL_BANNER:
-						case WHITE_BANNER:
-						case WHITE_WALL_BANNER:
-						case YELLOW_BANNER:
-						case YELLOW_WALL_BANNER:
+						}
+						// Banners
+						case BLACK_BANNER, BLACK_WALL_BANNER, BLUE_BANNER, BLUE_WALL_BANNER, BROWN_BANNER,
+								BROWN_WALL_BANNER, CYAN_BANNER, CYAN_WALL_BANNER, GRAY_BANNER, GRAY_WALL_BANNER,
+								GREEN_BANNER, GREEN_WALL_BANNER, LIGHT_BLUE_BANNER, LIGHT_BLUE_WALL_BANNER,
+								LIGHT_GRAY_BANNER, LIGHT_GRAY_WALL_BANNER, LIME_BANNER, LIME_WALL_BANNER,
+								MAGENTA_BANNER, MAGENTA_WALL_BANNER, ORANGE_BANNER, ORANGE_WALL_BANNER, PINK_BANNER,
+								PINK_WALL_BANNER, PURPLE_BANNER, PURPLE_WALL_BANNER, RED_BANNER, RED_WALL_BANNER,
+								WHITE_BANNER, WHITE_WALL_BANNER, YELLOW_BANNER, YELLOW_WALL_BANNER -> {
 							final Banner banner = (Banner) state;
 							banner.setBaseColor(cache.getDyeColor());
 							banner.setPatterns(cache.getPatterns());
 							banner.update(true);
-							break;
+						}
 					}
 					world.playEffect(l, Effect.STEP_SOUND, material == Material.AIR ? block.getType() : material);
 					final Sound sound = cm.getSound();
@@ -548,6 +471,18 @@ public class Regeneration implements Listener {
 			}
 		}.runTaskTimer(this.plugin, delay, speed);
 		list.forEach(block -> block.setType(Material.AIR));
+
+	}
+
+	private boolean isDoor(final Material material) {
+		switch(material) {
+			case ACACIA_DOOR, BIRCH_DOOR, CRIMSON_DOOR, DARK_OAK_DOOR, JUNGLE_DOOR, OAK_DOOR, SPRUCE_DOOR, WARPED_DOOR -> {
+				return true;
+			}
+			default -> {
+				return false;
+			}
+		}
 	}
 
 	@EventHandler

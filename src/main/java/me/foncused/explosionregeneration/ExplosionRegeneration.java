@@ -1,6 +1,5 @@
 package me.foncused.explosionregeneration;
 
-import me.foncused.explosionregeneration.command.BlockRegenSpeedCommand;
 import me.foncused.explosionregeneration.config.ConfigManager;
 import me.foncused.explosionregeneration.event.Regeneration;
 import me.foncused.explosionregeneration.lib.sk89q.WorldGuardHook;
@@ -17,7 +16,6 @@ public class ExplosionRegeneration extends JavaPlugin {
 	public void onEnable() {
 		this.registerConfig();
 		this.registerWorldGuard();
-		this.registerCommands();
 		this.registerEvents();
 	}
 
@@ -47,10 +45,6 @@ public class ExplosionRegeneration extends JavaPlugin {
 		if(this.cm.isWorldGuard()) {
 			this.worldguard = new WorldGuardHook();
 		}
-	}
-
-	private void registerCommands() {
-		this.getCommand("blockregenspeed").setExecutor(new BlockRegenSpeedCommand(this));
 	}
 
 	private void registerEvents() {

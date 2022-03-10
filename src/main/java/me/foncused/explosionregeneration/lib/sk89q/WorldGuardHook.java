@@ -61,7 +61,6 @@ public class WorldGuardHook {
 				}
 				final List<Block> filter = new ArrayList<>();
 				blocks.forEach(block -> {
-					final WorldGuardPlatform wgp = wg.getPlatform();
 					if(this.testDeny(block, Flags.CREEPER_EXPLOSION) || this.testDeny(block, Flags.OTHER_EXPLOSION)) {
 						filter.add(block);
 					}

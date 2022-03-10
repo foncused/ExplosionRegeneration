@@ -106,7 +106,7 @@ public class ConfigManager {
 				m = Material.FIRE;
 			}
 			this.filter.add(m);
-			ExplosionRenerationUtil.console("Material " + m.toString() + " is filtered from regeneration");
+			ExplosionRenerationUtil.console("Material " + m + " is filtered from regeneration");
 		});
 		this.filter = Collections.unmodifiableSet(this.filter);
 		this.blacklist = new HashSet<>();
@@ -130,7 +130,7 @@ public class ConfigManager {
 				try {
 					m = Material.valueOf(material.toUpperCase());
 					this.dropsBlacklist.add(m);
-					ExplosionRenerationUtil.console("Material " + m.toString() + " is filtered from item drops");
+					ExplosionRenerationUtil.console("Material " + m + " is filtered from item drops");
 				} catch(final IllegalArgumentException e) {
 					ExplosionRenerationUtil.consoleWarning("Material " + material + " is invalid, skipping...");
 				}

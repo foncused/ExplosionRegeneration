@@ -1,5 +1,5 @@
 # @plugin ExplosionRegeneration
-# @version 1.4.7
+# @version 1.4.8
 # @author foncused
 
 # Do you want blocks to regenerate in random order?
@@ -8,7 +8,6 @@
 random: true
 
 # Speed in ticks for block regeneration
-# You can change the speed in-game with /blockregenspeed <speed>
 # Recommended not to put this number over 200 since it uses a running task
 speed: 2
 
