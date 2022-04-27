@@ -4,10 +4,11 @@ import me.foncused.explosionregeneration.config.ConfigManager;
 import me.foncused.explosionregeneration.event.Regeneration;
 import me.foncused.explosionregeneration.lib.sk89q.WorldGuardHook;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ExplosionRegeneration extends JavaPlugin {
+
+	public static final String PREFIX = "[ExplosionRegeneration] ";
 
 	private ConfigManager cm;
 	private WorldGuardHook worldguard;
@@ -21,24 +22,8 @@ public class ExplosionRegeneration extends JavaPlugin {
 
 	private void registerConfig() {
 		this.saveDefaultConfig();
-		final FileConfiguration config = this.getConfig();
-		this.cm = new ConfigManager(
-				config.getBoolean("random", true),
-				config.getInt("speed", 2),
-				config.getInt("delay", 0),
-				config.getString("particle", "VILLAGER_HAPPY"),
-				config.getString("sound", "ENTITY_CHICKEN_EGG"),
-				config.getBoolean("tnt-chaining.enabled", false),
-				config.getInt("tnt-chaining.max-fuse-ticks", 40),
-				config.getBoolean("falling-blocks", false),
-				config.getStringList("filter"),
-				config.getStringList("blacklist"),
-				config.getBoolean("entity-protection", true),
-				config.getBoolean("drops.enabled", false),
-				config.getDouble("drops.radius", 6.0),
-				config.getStringList("drops.blacklist"),
-				config.getBoolean("worldguard", false)
-		);
+		this.cm = new ConfigManager(this.getConfig());
+		this.cm.validate();
 	}
 
 	private void registerWorldGuard() {

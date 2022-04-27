@@ -1,17 +1,16 @@
 package me.foncused.explosionregeneration.util;
 
+import me.foncused.explosionregeneration.ExplosionRegeneration;
 import org.bukkit.Bukkit;
 
 public class ExplosionRenerationUtil {
 
-	private static final String PREFIX = "[ExplosionRegeneration] ";
-
 	public static void console(final String message) {
-		Bukkit.getLogger().info(PREFIX + message);
+		Bukkit.getLogger().info(ExplosionRegeneration.PREFIX + message);
 	}
 
 	public static void consoleWarning(final String message) {
-		Bukkit.getLogger().warning(PREFIX + message);
+		Bukkit.getLogger().warning(ExplosionRegeneration.PREFIX + message);
 	}
 
 }

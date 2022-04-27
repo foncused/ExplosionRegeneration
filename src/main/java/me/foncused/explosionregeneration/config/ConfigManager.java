@@ -4,6 +4,7 @@ import me.foncused.explosionregeneration.util.ExplosionRenerationUtil;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,41 +13,35 @@ import java.util.Set;
 
 public class ConfigManager {
 
-	private final boolean random;
+	private final FileConfiguration config;
+	private boolean random;
 	private int speed;
 	private int delay;
 	private Particle particle;
 	private Sound sound;
-	private final boolean tntChainingEnabled;
+	private boolean tntChainingEnabled;
 	private int tntChainingMaxFuseTicks;
-	private final boolean fallingBlocks;
+	private boolean fallingBlocks;
 	private Set<Material> filter;
 	private Set<String> blacklist;
-	private final boolean entityProtection;
-	private final boolean dropsEnabled;
+	private boolean entityProtection;
+	private boolean dropsEnabled;
 	private double dropsRadius;
 	private Set<Material> dropsBlacklist;
-	private final boolean worldguard;
+	private boolean worldguard;
 
-	public ConfigManager(
-		final boolean random,
-		final int speed,
-		final int delay,
-		String particle,
-		String sound,
-		final boolean tntChainingEnabled,
-		final int tntChainingMaxFuseTicks,
-		final boolean fallingBlocks,
-		final List<String> filter,
-		final List<String> blacklist,
-		final boolean entityProtection,
-		final boolean dropsEnabled,
-		final double dropsRadius,
-		final List<String> dropsBlacklist,
-		final boolean worldguard
-	) {
-		this.random = random;
+	public ConfigManager(final FileConfiguration config) {
+		this.config = config;
+	}
+
+	public void validate() {
+
+		// random
+		this.random = this.config.getBoolean("random", true);
 		ExplosionRenerationUtil.console(this.random ? "Random mode enabled" : "Random mode disabled");
+
+		// speed
+		final int speed = this.config.getInt("speed", 2);
 		if(speed <= 0) {
 			this.speed = 10;
 			ExplosionRenerationUtil.consoleWarning("Set speed to " + speed + " ticks is not safe, reverting to default...");
@@ -54,6 +49,9 @@ public class ConfigManager {
 			this.speed = speed;
 		}
 		ExplosionRenerationUtil.console("Set speed to " + this.speed + " ticks");
+
+		// delay
+		final int delay = this.config.getInt("delay", 0);
 		if(delay < 0) {
 			this.delay = 0;
 			ExplosionRenerationUtil.consoleWarning("Set delay to " + delay + " ticks is not safe, reverting to default...");
@@ -61,8 +59,11 @@ public class ConfigManager {
 			this.delay = delay;
 		}
 		ExplosionRenerationUtil.console("Set delay to " + this.delay + " ticks");
+
+		// particle
+		String particle = this.config.getString("particle", "VILLAGER_HAPPY");
 		try {
-			if(particle.equals("")) {
+			if(particle.isEmpty()) {
 				particle = null;
 			} else {
 				this.particle = Particle.valueOf(particle.toUpperCase());
@@ -72,6 +73,9 @@ public class ConfigManager {
 			ExplosionRenerationUtil.consoleWarning("Set particle to " + particle + " is not safe, reverting to default...");
 		}
 		ExplosionRenerationUtil.console(particle == null ? "Disabled particle" : "Set particle to " + this.particle.toString());
+
+		// sound
+		String sound = this.config.getString("sound", "ENTITY_CHICKEN_EGG");
 		try {
 			if(sound.isEmpty()) {
 				sound = null;
@@ -83,19 +87,29 @@ public class ConfigManager {
 			ExplosionRenerationUtil.consoleWarning("Set sound to " + sound + " is not safe, reverting to default...");
 		}
 		ExplosionRenerationUtil.console(sound == null ? "Disabled sound" : "Set sound to " + this.sound.toString());
-		this.tntChainingEnabled = tntChainingEnabled;
-		ExplosionRenerationUtil.console(this.tntChainingEnabled ? "Chaining mode enabled" : "Chaining mode disabled");
+
+		// tnt-chaining.enabled
+		this.tntChainingEnabled = this.config.getBoolean("tnt-chaining.enabled", false);
+		ExplosionRenerationUtil.console(this.tntChainingEnabled ? "TNT chaining mode enabled" : "TNT chaining mode disabled");
+
+		// tnt-chaining.max-fuse-ticks
 		if(this.tntChainingEnabled) {
+			final int tntChainingMaxFuseTicks = this.config.getInt("tnt-chaining.max-fuse-ticks", 40);
 			if(tntChainingMaxFuseTicks <= 0 || tntChainingMaxFuseTicks > 200) {
 				this.tntChainingMaxFuseTicks = 20;
-				ExplosionRenerationUtil.consoleWarning("Set chaining max fuse ticks to " + tntChainingMaxFuseTicks + " ticks is not safe, reverting to default...");
+				ExplosionRenerationUtil.consoleWarning("Set TNT chaining max fuse ticks to " + tntChainingMaxFuseTicks + " ticks is not safe, reverting to default...");
 			} else {
 				this.tntChainingMaxFuseTicks = tntChainingMaxFuseTicks;
 			}
-			ExplosionRenerationUtil.console("Set chaining max fuse ticks to " + this.tntChainingMaxFuseTicks + " ticks");
+			ExplosionRenerationUtil.console("Set TNT chaining max fuse ticks to " + this.tntChainingMaxFuseTicks + " ticks");
 		}
-		this.fallingBlocks = fallingBlocks;
+
+		// falling-blocks
+		this.fallingBlocks = this.config.getBoolean("falling-blocks", false);
 		ExplosionRenerationUtil.console(this.fallingBlocks ? "Falling blocks enabled" : "Falling blocks disabled");
+
+		// filter
+		final List<String> filter = this.config.getStringList("filter");
 		this.filter = new HashSet<>();
 		filter.forEach(material -> {
 			Material m;
@@ -109,13 +123,23 @@ public class ConfigManager {
 			ExplosionRenerationUtil.console("Material " + m + " is filtered from regeneration");
 		});
 		this.filter = Collections.unmodifiableSet(this.filter);
+
+		// blacklist
+		final List<String> blacklist = this.config.getStringList("blacklist");
 		this.blacklist = new HashSet<>();
 		this.blacklist.addAll(blacklist);
 		this.blacklist = Collections.unmodifiableSet(this.blacklist);
-		this.entityProtection = entityProtection;
+
+		// entity-protection
+		this.entityProtection = this.config.getBoolean("entity-protection", true);
 		ExplosionRenerationUtil.console(this.entityProtection ? "Entities protected" : "Entities unprotected");
-		this.dropsEnabled = dropsEnabled;
+
+		// drops.enabled
+		this.dropsEnabled = this.config.getBoolean("drops.enabled", true);
 		ExplosionRenerationUtil.console(this.dropsEnabled ? "Drops enabled" : "Drops disabled");
+
+		// drops.radius
+		final double dropsRadius = this.config.getDouble("drops.radius", 6.0);
 		if(dropsRadius < 0.0) {
 			this.dropsRadius = 4.0;
 			ExplosionRenerationUtil.consoleWarning("Set drops radius to " + dropsRadius + " is not safe, reverting to default...");
@@ -123,7 +147,10 @@ public class ConfigManager {
 			this.dropsRadius = dropsRadius;
 		}
 		ExplosionRenerationUtil.console("Set drops radius to " + this.dropsRadius);
+
+		// drops.blacklist
 		if(this.dropsEnabled) {
+			final List<String> dropsBlacklist = this.config.getStringList("drops.blacklist");
 			this.dropsBlacklist = new HashSet<>();
 			dropsBlacklist.forEach(material -> {
 				Material m;
@@ -137,8 +164,11 @@ public class ConfigManager {
 			});
 			this.dropsBlacklist = Collections.unmodifiableSet(this.dropsBlacklist);
 		}
-		this.worldguard = worldguard;
+
+		// worldguard
+		this.worldguard = this.config.getBoolean("worldguard", false);
 		ExplosionRenerationUtil.console(this.worldguard ? "WorldGuard mode enabled" : "WorldGuard mode disabled");
+
 	}
 
 	public boolean isRandom() {
