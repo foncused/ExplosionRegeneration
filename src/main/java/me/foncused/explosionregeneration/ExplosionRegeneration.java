@@ -3,7 +3,6 @@ package me.foncused.explosionregeneration;
 import me.foncused.explosionregeneration.config.ConfigManager;
 import me.foncused.explosionregeneration.event.Regeneration;
 import me.foncused.explosionregeneration.lib.sk89q.WorldGuardHook;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ExplosionRegeneration extends JavaPlugin {
@@ -33,7 +32,7 @@ public class ExplosionRegeneration extends JavaPlugin {
 	}
 
 	private void registerEvents() {
-		Bukkit.getPluginManager().registerEvents(new Regeneration(this), this);
+		this.getServer().getPluginManager().registerEvents(new Regeneration(this), this);
 	}
 
 	public ConfigManager getConfigManager() {
