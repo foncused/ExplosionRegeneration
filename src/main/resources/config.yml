@@ -9,7 +9,7 @@ random: true
 
 # Speed in ticks for block regeneration
 # Recommended not to put this number over 200 since it uses a running task
-speed: 2
+speed: 3
 
 # Delay in ticks before block regeneration
 delay: 0
@@ -38,7 +38,7 @@ filter:
 blacklist:
   - ""
 
-# Entity protection (Armor Stands, Item Frames, Paintings)
+# Entity protection (Armor Stands, Item Frames, Paintings, Minecarts)
 entity-protection: true
 
 # Should item drops from explosions be enabled?

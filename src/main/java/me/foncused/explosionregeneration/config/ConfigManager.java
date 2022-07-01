@@ -41,9 +41,9 @@ public class ConfigManager {
 		ExplosionRenerationUtil.console(this.random ? "Random mode enabled" : "Random mode disabled");
 
 		// speed
-		final int speed = this.config.getInt("speed", 2);
+		final int speed = this.config.getInt("speed", 3);
 		if(speed <= 0) {
-			this.speed = 10;
+			this.speed = 3;
 			ExplosionRenerationUtil.consoleWarning("Set speed to " + speed + " ticks is not safe, reverting to default...");
 		} else {
 			this.speed = speed;

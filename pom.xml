@@ -67,8 +67,8 @@
         </repository>
         <!-- WorldEdit/WorldGuard -->
         <repository>
-            <id>sk89q-snapshots</id>
-            <url>https://maven.sk89q.com/artifactory/repo/</url>
+            <id>enginehub-maven</id>
+            <url>https://maven.enginehub.org/repo/</url>
         </repository>
     </repositories>
     <dependencies>
@@ -76,21 +76,21 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <version>1.19-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- WorldEdit -->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>7.2.8</version>
+            <version>7.2.9</version>
             <scope>provided</scope>
         </dependency>
         <!-- WorldGuard -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
-            <version>7.0.6</version>
+            <version>7.0.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

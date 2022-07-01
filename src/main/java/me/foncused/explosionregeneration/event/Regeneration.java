@@ -9,6 +9,9 @@ import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
+import org.bukkit.entity.minecart.CommandMinecart;
+import org.bukkit.entity.minecart.HopperMinecart;
+import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockExplodeEvent;
@@ -16,6 +19,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,6 +36,7 @@ public class Regeneration implements Listener {
 	private final List<FallingBlock> fallingBlocks;
 	private final Set<UUID> entities;
 	private final Map<UUID, ItemStack[]> armorStands;
+	private final Map<UUID, MinecartCache> minecarts;
 	private final Map<UUID, ItemFrameCache> itemFrames;
 	private final Map<UUID, Art> paintings;
 	private int time;
@@ -43,6 +48,7 @@ public class Regeneration implements Listener {
 		this.fallingBlocks = new ArrayList<>();
 		this.entities = new HashSet<>();
 		this.armorStands = new HashMap<>();
+		this.minecarts = new HashMap<>();
 		this.itemFrames = new HashMap<>();
 		this.paintings = new HashMap<>();
 		this.time = this.cm.getDelay() + (250 * this.cm.getSpeed());
@@ -345,13 +351,13 @@ public class Regeneration implements Listener {
 											}
 											break;
 										case ITEM_FRAME:
-											final ItemFrameCache cache = itemFrames.get(uuid);
-											if(cache != null) {
+											final ItemFrameCache itemFrameCache = itemFrames.get(uuid);
+											if(itemFrameCache != null) {
 												itemFrames.remove(uuid);
 												try {
 													final ItemFrame frame = ((ItemFrame) world.spawnEntity(location, type));
-													frame.setItem(cache.getItem());
-													frame.setRotation(cache.getRotation());
+													frame.setItem(itemFrameCache.getItem());
+													frame.setRotation(itemFrameCache.getRotation());
 												} catch(final IllegalArgumentException e) {
 													if(!(e.getMessage().contains("Cannot spawn hanging entity for org.bukkit.entity.ItemFrame"))) {
 														throw e;
@@ -388,6 +394,51 @@ public class Regeneration implements Listener {
 									}
 								}
 							});
+							final Set<UUID> minecartsToSpawn = new HashSet<>();
+							minecarts.forEach((uuid, minecartCache) -> {
+								if(minecartCache.getLocation().distance(location) <= radius) {
+									minecartsToSpawn.add(uuid);
+								}
+							});
+							minecartsToSpawn.forEach(uuid -> {
+								final MinecartCache minecartCache = minecarts.get(uuid);
+								if(minecartCache != null) {
+									try {
+										final Location location = minecartCache.getLocation();
+										final ItemStack[] contents = minecartCache.getContents();
+										switch(minecartCache.getType()) {
+											case MINECART:
+												world.spawnEntity(location, EntityType.MINECART);
+												break;
+											case MINECART_FURNACE:
+												world.spawnEntity(location, EntityType.MINECART_FURNACE);
+												break;
+											case MINECART_MOB_SPAWNER:
+												world.spawnEntity(location, EntityType.MINECART_MOB_SPAWNER);
+												break;
+											case MINECART_TNT:
+												world.spawnEntity(location, EntityType.MINECART_TNT);
+												break;
+											case MINECART_CHEST:
+												((StorageMinecart) world.spawnEntity(location, EntityType.MINECART_CHEST))
+														.getInventory().setContents(contents);
+												break;
+											case MINECART_COMMAND:
+												((CommandMinecart) world.spawnEntity(location, EntityType.MINECART_COMMAND))
+														.setCommand(minecartCache.getCommand());
+												break;
+											case MINECART_HOPPER:
+												final HopperMinecart hm = ((HopperMinecart) world.spawnEntity(location, EntityType.MINECART_HOPPER));
+												hm.getInventory().setContents(contents);
+												hm.setEnabled(minecartCache.isEnabled());
+												break;
+										}
+									} catch(final IllegalArgumentException e) {
+										e.printStackTrace();
+									}
+								}
+							});
+							minecartsToSpawn.forEach(minecarts::remove);
 						}
 						this.cancel();
 						return;
@@ -470,19 +521,10 @@ public class Regeneration implements Listener {
 				}
 			}
 		}.runTaskTimer(this.plugin, delay, speed);
+
+		// Initially set all exploded blocks to air
 		list.forEach(block -> block.setType(Material.AIR));
 
-	}
-
-	private boolean isDoor(final Material material) {
-		switch(material) {
-			case ACACIA_DOOR, BIRCH_DOOR, CRIMSON_DOOR, DARK_OAK_DOOR, JUNGLE_DOOR, OAK_DOOR, SPRUCE_DOOR, WARPED_DOOR -> {
-				return true;
-			}
-			default -> {
-				return false;
-			}
-		}
 	}
 
 	@EventHandler
@@ -573,6 +615,85 @@ public class Regeneration implements Listener {
 				}
 			}
 		}
+	}
+
+	@EventHandler
+	public void onVehicleDestroy(final VehicleDestroyEvent event) {
+		if(this.cm.isEntityProtection()) {
+			final Vehicle vehicle = event.getVehicle();
+			final UUID uuid = vehicle.getUniqueId();
+			final EntityType type = vehicle.getType();
+			final Location location = vehicle.getLocation();
+			switch(type) {
+				case MINECART:
+				case MINECART_FURNACE:
+				case MINECART_MOB_SPAWNER:
+				case MINECART_TNT:
+					this.minecarts.put(
+							uuid,
+							new MinecartCache(
+									type,
+									location,
+									null,
+									null,
+									false
+							)
+					);
+					break;
+				case MINECART_CHEST:
+					this.minecarts.put(
+							uuid,
+							new MinecartCache(
+									type,
+									location,
+									null,
+									((StorageMinecart) vehicle).getInventory().getContents(),
+									false
+							)
+					);
+					break;
+				case MINECART_COMMAND:
+					this.minecarts.put(
+							uuid,
+							new MinecartCache(
+									type,
+									location,
+									((CommandMinecart) vehicle).getCommand(),
+									null,
+									false
+							)
+					);
+					break;
+				case MINECART_HOPPER:
+					final HopperMinecart hm = (HopperMinecart) vehicle;
+					this.minecarts.put(
+							uuid,
+							new MinecartCache(
+									type,
+									location,
+									null,
+									hm.getInventory().getContents(),
+									hm.isEnabled()
+							)
+					);
+					break;
+			}
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					minecarts.remove(uuid);
+				}
+			}.runTaskLater(this.plugin, this.time);
+		}
+	}
+
+	// Check if material is a door
+	private boolean isDoor(final Material material) {
+		return switch(material) {
+			case ACACIA_DOOR, BIRCH_DOOR, CRIMSON_DOOR, DARK_OAK_DOOR,
+					JUNGLE_DOOR, OAK_DOOR, SPRUCE_DOOR, WARPED_DOOR -> true;
+			default -> false;
+		};
 	}
 
 }
@@ -705,6 +826,70 @@ class ItemFrameCache {
 
 	void setRotation(final Rotation rotation) {
 		this.rotation = rotation;
+	}
+
+}
+
+class MinecartCache {
+
+	private EntityType type;
+	private Location location;
+	private String command;
+	private ItemStack[] contents;
+	private boolean enabled;
+
+	MinecartCache(
+		final EntityType type,
+		final Location location,
+		final String command,
+		final ItemStack[] contents,
+		final boolean enabled
+	) {
+		this.type = type;
+		this.location = location;
+		this.command = command;
+		this.contents = contents;
+		this.enabled = enabled;
+	}
+
+	EntityType getType() {
+		return this.type;
+	}
+
+	void setType(final EntityType type) {
+		this.type = type;
+	}
+
+	Location getLocation() {
+		return this.location;
+	}
+
+	void setLocation(final Location location) {
+		this.location = location;
+	}
+
+	String getCommand() {
+		return this.command;
+	}
+
+	void setCommand(final String command) {
+		this.command = command;
+	}
+
+	ItemStack[] getContents() {
+		return this.contents;
+	}
+
+	void setContents(final ItemStack[] contents) {
+		this.contents = contents;
+	}
+
+	boolean isEnabled() {
+		return this.enabled;
+	}
+
+	void setEnabled(final boolean enabled) {
+		this.enabled = enabled;
 	}
 
 }
