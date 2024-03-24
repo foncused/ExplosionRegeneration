@@ -57,7 +57,7 @@ public class Regeneration implements Listener {
 	private void regenerate(final List<Block> list, final Location location) {
 
 		// Do nothing if there is nothing to regenerate
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			return;
 		}
 
