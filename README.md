@@ -37,7 +37,7 @@ https://github.com/foncused/ExplosionRegeneration/blob/master/src/main/resources
 ### Issues:
 - ~~Entity blocks are not currently being regenerated~~
 - ~~Doors regenerate incorrectly (half doors) and still produce item drops~~
-- Minecarts are not currently being regenerated
+- ~~Minecarts are not currently being regenerated~~
   
 ### Support:
 If you run into any server performance problems, or if the plugin is not working as advertised (console errors, bugs, etc.), please do not hesitate to contact me, post in the discussion thread, or open an issue on GitHub.

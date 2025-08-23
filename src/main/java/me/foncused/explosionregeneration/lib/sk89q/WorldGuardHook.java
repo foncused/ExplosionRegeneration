@@ -15,6 +15,7 @@ import org.bukkit.plugin.PluginManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class WorldGuardHook {
 
@@ -32,10 +33,10 @@ public class WorldGuardHook {
 
 	public boolean isInRegion(final String region, final Location location) {
 		try {
-			return this.platform
-					.getRegionContainer()
-					.get(BukkitAdapter.adapt(location.getWorld()))
-					.getRegion(region)
+			return Objects.requireNonNull(Objects.requireNonNull(this.platform
+                                    .getRegionContainer()
+                                    .get(BukkitAdapter.adapt(Objects.requireNonNull(location.getWorld()))))
+                            .getRegion(region))
 					.contains(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 		} catch(final NullPointerException e) {
 			return false;

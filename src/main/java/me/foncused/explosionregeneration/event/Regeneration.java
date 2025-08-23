@@ -8,6 +8,8 @@ import org.bukkit.block.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
@@ -25,8 +27,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.Comparator;
 import java.util.*;
+import java.util.Comparator;
 
 public class Regeneration implements Listener {
 
@@ -117,7 +119,7 @@ public class Regeneration implements Listener {
 		// Check config if using WorldGuard integration
 		if(this.cm.isWorldGuard()) {
 			this.worldguard.getExplosionFiltered(list);
-			if(list.size() == 0) {
+			if(list.isEmpty()) {
 				return;
 			}
 		}
@@ -166,7 +168,7 @@ public class Regeneration implements Listener {
 			list.stream().filter(block -> block.getType() == Material.TNT).forEach(tnt::add);
 			tnt.forEach(block -> {
 				block.setType(Material.AIR);
-				final TNTPrimed entity = (TNTPrimed) world.spawnEntity(block.getLocation(), EntityType.PRIMED_TNT);
+				final TNTPrimed entity = (TNTPrimed) world.spawnEntity(block.getLocation(), EntityType.TNT);
 				entity.setFuseTicks(new Random().nextInt(this.cm.getTntChainingMaxFuseTicks()) + 1);
 			});
 			list.removeAll(tnt);
@@ -180,7 +182,7 @@ public class Regeneration implements Listener {
 				public void run() {
 					world.getEntitiesByClass(Item.class)
 							.stream()
-							.filter(item -> item.getType() == EntityType.DROPPED_ITEM
+							.filter(item -> item.getType() == EntityType.ITEM
 									&& dropsBlacklist.contains(item.getItemStack().getType())
 									&& item.getLocation().distance(location) <= distance)
 							.forEach(Entity::remove);
@@ -192,7 +194,7 @@ public class Regeneration implements Listener {
 				public void run() {
 					world.getEntitiesByClass(Item.class)
 							.stream()
-							.filter(item -> item.getType() == EntityType.DROPPED_ITEM
+							.filter(item -> item.getType() == EntityType.ITEM
 									&& item.getLocation().distance(location) <= distance)
 							.forEach(Entity::remove);
 				}
@@ -218,16 +220,36 @@ public class Regeneration implements Listener {
 			Container container = null;
 			switch(material) {
 				// Signs
-				case ACACIA_SIGN, ACACIA_WALL_SIGN, BIRCH_SIGN, BIRCH_WALL_SIGN, CRIMSON_SIGN, CRIMSON_WALL_SIGN,
-						DARK_OAK_SIGN, DARK_OAK_WALL_SIGN, JUNGLE_SIGN, JUNGLE_WALL_SIGN, OAK_SIGN, OAK_WALL_SIGN,
-						SPRUCE_SIGN, SPRUCE_WALL_SIGN, WARPED_SIGN, WARPED_WALL_SIGN -> cache.setSignLines(((Sign) state).getLines());
+				case ACACIA_HANGING_SIGN, ACACIA_SIGN, ACACIA_WALL_HANGING_SIGN, ACACIA_WALL_SIGN,
+					 BAMBOO_HANGING_SIGN, BAMBOO_SIGN, BAMBOO_WALL_HANGING_SIGN, BAMBOO_WALL_SIGN,
+					 BIRCH_HANGING_SIGN, BIRCH_SIGN, BIRCH_WALL_HANGING_SIGN, BIRCH_WALL_SIGN,
+					 CRIMSON_HANGING_SIGN, CRIMSON_SIGN, CRIMSON_WALL_HANGING_SIGN, CRIMSON_WALL_SIGN,
+					 DARK_OAK_HANGING_SIGN, DARK_OAK_SIGN, DARK_OAK_WALL_HANGING_SIGN, DARK_OAK_WALL_SIGN,
+					 JUNGLE_HANGING_SIGN, JUNGLE_SIGN, JUNGLE_WALL_HANGING_SIGN, JUNGLE_WALL_SIGN,
+					 OAK_HANGING_SIGN, OAK_SIGN, OAK_WALL_HANGING_SIGN, OAK_WALL_SIGN,
+					 SPRUCE_HANGING_SIGN, SPRUCE_SIGN, SPRUCE_WALL_HANGING_SIGN, SPRUCE_WALL_SIGN,
+					 WARPED_HANGING_SIGN, WARPED_SIGN, WARPED_WALL_HANGING_SIGN, WARPED_WALL_SIGN -> {
+					final Sign sign = (Sign) state;
+					cache.setSignFrontLines(sign.getSide(Side.FRONT).getLines());
+					cache.setSignFrontLines(sign.getSide(Side.BACK).getLines());
+				}
 				// Banners
-				case BLACK_BANNER, BLACK_WALL_BANNER, BLUE_BANNER, BLUE_WALL_BANNER, BROWN_BANNER, BROWN_WALL_BANNER,
-						CYAN_BANNER, CYAN_WALL_BANNER, GRAY_BANNER, GRAY_WALL_BANNER, GREEN_BANNER, GREEN_WALL_BANNER,
-						LIGHT_BLUE_BANNER, LIGHT_BLUE_WALL_BANNER, LIGHT_GRAY_BANNER, LIGHT_GRAY_WALL_BANNER, LIME_BANNER,
-						LIME_WALL_BANNER, MAGENTA_BANNER, MAGENTA_WALL_BANNER, ORANGE_BANNER, ORANGE_WALL_BANNER, PINK_BANNER,
-						PINK_WALL_BANNER, PURPLE_BANNER, PURPLE_WALL_BANNER, RED_BANNER, RED_WALL_BANNER, WHITE_BANNER,
-						WHITE_WALL_BANNER, YELLOW_BANNER, YELLOW_WALL_BANNER -> {
+				case BLACK_BANNER, BLACK_WALL_BANNER,
+					 BLUE_BANNER, BLUE_WALL_BANNER,
+					 BROWN_BANNER, BROWN_WALL_BANNER,
+					 CYAN_BANNER, CYAN_WALL_BANNER,
+					 GRAY_BANNER, GRAY_WALL_BANNER,
+					 GREEN_BANNER, GREEN_WALL_BANNER,
+					 LIGHT_BLUE_BANNER, LIGHT_BLUE_WALL_BANNER,
+					 LIGHT_GRAY_BANNER, LIGHT_GRAY_WALL_BANNER,
+					 LIME_BANNER, LIME_WALL_BANNER,
+					 MAGENTA_BANNER, MAGENTA_WALL_BANNER,
+					 ORANGE_BANNER, ORANGE_WALL_BANNER,
+					 PINK_BANNER, PINK_WALL_BANNER,
+					 PURPLE_BANNER, PURPLE_WALL_BANNER,
+					 RED_BANNER, RED_WALL_BANNER,
+					 WHITE_BANNER, WHITE_WALL_BANNER,
+					 YELLOW_BANNER, YELLOW_WALL_BANNER -> {
 					final Banner banner = (Banner) state;
 					cache.setDyeColor(banner.getBaseColor());
 					cache.setPatterns(banner.getPatterns());
@@ -241,10 +263,11 @@ public class Regeneration implements Listener {
 				case DROPPER -> container = (Dropper) state;
 				case FURNACE -> container = (Furnace) state;
 				case HOPPER -> container = (Hopper) state;
-				case BLACK_SHULKER_BOX, BLUE_SHULKER_BOX, BROWN_SHULKER_BOX, CYAN_SHULKER_BOX, GRAY_SHULKER_BOX,
-						GREEN_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX, LIGHT_GRAY_SHULKER_BOX, LIME_SHULKER_BOX,
-						MAGENTA_SHULKER_BOX, ORANGE_SHULKER_BOX, PINK_SHULKER_BOX, PURPLE_SHULKER_BOX, RED_SHULKER_BOX,
-						SHULKER_BOX, WHITE_SHULKER_BOX, YELLOW_SHULKER_BOX -> container = (ShulkerBox) state;
+				case BLACK_SHULKER_BOX, BLUE_SHULKER_BOX, BROWN_SHULKER_BOX, CYAN_SHULKER_BOX,
+					 GRAY_SHULKER_BOX, GREEN_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX,
+					 LIGHT_GRAY_SHULKER_BOX, LIME_SHULKER_BOX, MAGENTA_SHULKER_BOX,
+					 ORANGE_SHULKER_BOX, PINK_SHULKER_BOX, PURPLE_SHULKER_BOX, RED_SHULKER_BOX,
+					 SHULKER_BOX, WHITE_SHULKER_BOX, YELLOW_SHULKER_BOX -> container = (ShulkerBox) state;
 				case SMOKER -> container = (Smoker) state;
 				// Lectern
 				case LECTERN -> {
@@ -283,7 +306,7 @@ public class Regeneration implements Listener {
 			public void run() {
 				try {
 					// Done, so do containers and entities last
-					if(list.size() == 0) {
+					if(list.isEmpty()) {
 						caches.forEach((block, cache) -> {
 							final Material material = cache.getMaterial();
 							final BlockState state = cache.getBlockState();
@@ -299,10 +322,10 @@ public class Regeneration implements Listener {
 								case FURNACE -> container = (Furnace) state;
 								case HOPPER -> container = (Hopper) state;
 								case BLACK_SHULKER_BOX, BLUE_SHULKER_BOX, BROWN_SHULKER_BOX, CYAN_SHULKER_BOX,
-										GRAY_SHULKER_BOX, GREEN_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX,
-										LIGHT_GRAY_SHULKER_BOX, LIME_SHULKER_BOX, MAGENTA_SHULKER_BOX,
-										ORANGE_SHULKER_BOX, PINK_SHULKER_BOX, PURPLE_SHULKER_BOX, RED_SHULKER_BOX,
-										SHULKER_BOX, WHITE_SHULKER_BOX, YELLOW_SHULKER_BOX -> container = (ShulkerBox) state;
+									 GRAY_SHULKER_BOX, GREEN_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX,
+									 LIGHT_GRAY_SHULKER_BOX, LIME_SHULKER_BOX, MAGENTA_SHULKER_BOX,
+									 ORANGE_SHULKER_BOX, PINK_SHULKER_BOX, PURPLE_SHULKER_BOX, RED_SHULKER_BOX,
+									 SHULKER_BOX, WHITE_SHULKER_BOX, YELLOW_SHULKER_BOX -> container = (ShulkerBox) state;
 								case SMOKER -> container = (Smoker) state;
 								// Lectern
 								case LECTERN -> {
@@ -347,7 +370,7 @@ public class Regeneration implements Listener {
 											final ItemStack[] armor = armorStands.get(uuid);
 											if(armor != null) {
 												armorStands.remove(uuid);
-												stand.getEquipment().setArmorContents(armor);
+												Objects.requireNonNull(stand.getEquipment()).setArmorContents(armor);
 											}
 											break;
 										case ITEM_FRAME:
@@ -410,25 +433,25 @@ public class Regeneration implements Listener {
 											case MINECART:
 												world.spawnEntity(location, EntityType.MINECART);
 												break;
-											case MINECART_FURNACE:
-												world.spawnEntity(location, EntityType.MINECART_FURNACE);
+											case FURNACE_MINECART:
+												world.spawnEntity(location, EntityType.FURNACE_MINECART);
 												break;
-											case MINECART_MOB_SPAWNER:
-												world.spawnEntity(location, EntityType.MINECART_MOB_SPAWNER);
+											case SPAWNER_MINECART:
+												world.spawnEntity(location, EntityType.SPAWNER_MINECART);
 												break;
-											case MINECART_TNT:
-												world.spawnEntity(location, EntityType.MINECART_TNT);
+											case TNT_MINECART:
+												world.spawnEntity(location, EntityType.TNT_MINECART);
 												break;
-											case MINECART_CHEST:
-												((StorageMinecart) world.spawnEntity(location, EntityType.MINECART_CHEST))
+											case CHEST_MINECART:
+												((StorageMinecart) world.spawnEntity(location, EntityType.CHEST_MINECART))
 														.getInventory().setContents(contents);
 												break;
-											case MINECART_COMMAND:
-												((CommandMinecart) world.spawnEntity(location, EntityType.MINECART_COMMAND))
+											case COMMAND_BLOCK_MINECART:
+												((CommandMinecart) world.spawnEntity(location, EntityType.COMMAND_BLOCK_MINECART))
 														.setCommand(minecartCache.getCommand());
 												break;
-											case MINECART_HOPPER:
-												final HopperMinecart hm = ((HopperMinecart) world.spawnEntity(location, EntityType.MINECART_HOPPER));
+											case HOPPER_MINECART:
+												final HopperMinecart hm = ((HopperMinecart) world.spawnEntity(location, EntityType.HOPPER_MINECART));
 												hm.getInventory().setContents(contents);
 												hm.setEnabled(minecartCache.isEnabled());
 												break;
@@ -444,7 +467,7 @@ public class Regeneration implements Listener {
 						return;
 					}
 					// Blocks
-					final Block block = list.get(0);
+					final Block block = list.getFirst();
 					final ExplosionCache cache = caches.get(block);
 					BlockData data;
 					try {
@@ -480,25 +503,47 @@ public class Regeneration implements Listener {
 					final BlockState state = cache.getBlockState();
 					switch(material) {
 						// Signs
-						case ACACIA_SIGN, ACACIA_WALL_SIGN, BIRCH_SIGN, BIRCH_WALL_SIGN, CRIMSON_SIGN,
-								CRIMSON_WALL_SIGN, DARK_OAK_SIGN, DARK_OAK_WALL_SIGN, JUNGLE_SIGN, JUNGLE_WALL_SIGN,
-								OAK_SIGN, OAK_WALL_SIGN, SPRUCE_SIGN, SPRUCE_WALL_SIGN, WARPED_SIGN, WARPED_WALL_SIGN -> {
+						case ACACIA_HANGING_SIGN, ACACIA_SIGN, ACACIA_WALL_HANGING_SIGN, ACACIA_WALL_SIGN,
+							 BAMBOO_HANGING_SIGN, BAMBOO_SIGN, BAMBOO_WALL_HANGING_SIGN, BAMBOO_WALL_SIGN,
+							 BIRCH_HANGING_SIGN, BIRCH_SIGN, BIRCH_WALL_HANGING_SIGN, BIRCH_WALL_SIGN,
+							 CRIMSON_HANGING_SIGN, CRIMSON_SIGN, CRIMSON_WALL_HANGING_SIGN, CRIMSON_WALL_SIGN,
+							 DARK_OAK_HANGING_SIGN, DARK_OAK_SIGN, DARK_OAK_WALL_HANGING_SIGN, DARK_OAK_WALL_SIGN,
+							 JUNGLE_HANGING_SIGN, JUNGLE_SIGN, JUNGLE_WALL_HANGING_SIGN, JUNGLE_WALL_SIGN,
+							 OAK_HANGING_SIGN, OAK_SIGN, OAK_WALL_HANGING_SIGN, OAK_WALL_SIGN,
+							 SPRUCE_HANGING_SIGN, SPRUCE_SIGN, SPRUCE_WALL_HANGING_SIGN, SPRUCE_WALL_SIGN,
+							 WARPED_HANGING_SIGN, WARPED_SIGN, WARPED_WALL_HANGING_SIGN, WARPED_WALL_SIGN -> {
 							final Sign sign = (Sign) state;
-							final String[] lines = cache.getSignLines();
-							sign.setLine(0, lines[0]);
-							sign.setLine(1, lines[1]);
-							sign.setLine(2, lines[2]);
-							sign.setLine(3, lines[3]);
+							final SignSide front = sign.getSide(Side.FRONT);
+							final String[] frontLines = cache.getSignFrontLines();
+							front.setLine(0, frontLines[0]);
+							front.setLine(1, frontLines[1]);
+							front.setLine(2, frontLines[2]);
+							front.setLine(3, frontLines[3]);
+							final SignSide back = sign.getSide(Side.BACK);
+							final String[] backLines = cache.getSignFrontLines();
+							back.setLine(0, backLines[0]);
+							back.setLine(1, backLines[1]);
+							back.setLine(2, backLines[2]);
+							back.setLine(3, backLines[3]);
 							sign.update();
 						}
 						// Banners
-						case BLACK_BANNER, BLACK_WALL_BANNER, BLUE_BANNER, BLUE_WALL_BANNER, BROWN_BANNER,
-								BROWN_WALL_BANNER, CYAN_BANNER, CYAN_WALL_BANNER, GRAY_BANNER, GRAY_WALL_BANNER,
-								GREEN_BANNER, GREEN_WALL_BANNER, LIGHT_BLUE_BANNER, LIGHT_BLUE_WALL_BANNER,
-								LIGHT_GRAY_BANNER, LIGHT_GRAY_WALL_BANNER, LIME_BANNER, LIME_WALL_BANNER,
-								MAGENTA_BANNER, MAGENTA_WALL_BANNER, ORANGE_BANNER, ORANGE_WALL_BANNER, PINK_BANNER,
-								PINK_WALL_BANNER, PURPLE_BANNER, PURPLE_WALL_BANNER, RED_BANNER, RED_WALL_BANNER,
-								WHITE_BANNER, WHITE_WALL_BANNER, YELLOW_BANNER, YELLOW_WALL_BANNER -> {
+						case BLACK_BANNER, BLACK_WALL_BANNER,
+							 BLUE_BANNER, BLUE_WALL_BANNER,
+							 BROWN_BANNER, BROWN_WALL_BANNER,
+							 CYAN_BANNER, CYAN_WALL_BANNER,
+							 GRAY_BANNER, GRAY_WALL_BANNER,
+							 GREEN_BANNER, GREEN_WALL_BANNER,
+							 LIGHT_BLUE_BANNER, LIGHT_BLUE_WALL_BANNER,
+							 LIGHT_GRAY_BANNER, LIGHT_GRAY_WALL_BANNER,
+							 LIME_BANNER, LIME_WALL_BANNER,
+							 MAGENTA_BANNER, MAGENTA_WALL_BANNER,
+							 ORANGE_BANNER, ORANGE_WALL_BANNER,
+							 PINK_BANNER, PINK_WALL_BANNER,
+							 PURPLE_BANNER, PURPLE_WALL_BANNER,
+							 RED_BANNER, RED_WALL_BANNER,
+							 WHITE_BANNER, WHITE_WALL_BANNER,
+							 YELLOW_BANNER, YELLOW_WALL_BANNER -> {
 							final Banner banner = (Banner) state;
 							banner.setBaseColor(cache.getDyeColor());
 							banner.setPatterns(cache.getPatterns());
@@ -558,7 +603,7 @@ public class Regeneration implements Listener {
 			final Entity entity = event.getEntity();
 			final EntityType type = entity.getType();
 			if((cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)
-					&& type != EntityType.DROPPED_ITEM
+					&& type != EntityType.ITEM
 			) {
 				final UUID uuid = entity.getUniqueId();
 				this.entities.add(uuid);
@@ -569,7 +614,7 @@ public class Regeneration implements Listener {
 					}
 				}.runTaskLater(this.plugin, this.time);
 				if(type == EntityType.ARMOR_STAND) {
-					this.armorStands.put(uuid, ((ArmorStand) entity).getEquipment().getArmorContents());
+					this.armorStands.put(uuid, Objects.requireNonNull(((ArmorStand) entity).getEquipment()).getArmorContents());
 					new BukkitRunnable() {
 						@Override
 						public void run() {
@@ -626,9 +671,9 @@ public class Regeneration implements Listener {
 			final Location location = vehicle.getLocation();
 			switch(type) {
 				case MINECART:
-				case MINECART_FURNACE:
-				case MINECART_MOB_SPAWNER:
-				case MINECART_TNT:
+				case FURNACE_MINECART:
+				case SPAWNER_MINECART:
+				case TNT_MINECART:
 					this.minecarts.put(
 							uuid,
 							new MinecartCache(
@@ -640,7 +685,7 @@ public class Regeneration implements Listener {
 							)
 					);
 					break;
-				case MINECART_CHEST:
+				case CHEST_MINECART:
 					this.minecarts.put(
 							uuid,
 							new MinecartCache(
@@ -652,7 +697,7 @@ public class Regeneration implements Listener {
 							)
 					);
 					break;
-				case MINECART_COMMAND:
+				case COMMAND_BLOCK_MINECART:
 					this.minecarts.put(
 							uuid,
 							new MinecartCache(
@@ -664,7 +709,7 @@ public class Regeneration implements Listener {
 							)
 					);
 					break;
-				case MINECART_HOPPER:
+				case HOPPER_MINECART:
 					final HopperMinecart hm = (HopperMinecart) vehicle;
 					this.minecarts.put(
 							uuid,
@@ -690,7 +735,7 @@ public class Regeneration implements Listener {
 	// Check if material is a door
 	private boolean isDoor(final Material material) {
 		return switch(material) {
-			case ACACIA_DOOR, BIRCH_DOOR, CRIMSON_DOOR, DARK_OAK_DOOR,
+			case ACACIA_DOOR, BAMBOO_DOOR, BIRCH_DOOR, CRIMSON_DOOR, DARK_OAK_DOOR,
 					JUNGLE_DOOR, OAK_DOOR, SPRUCE_DOOR, WARPED_DOOR -> true;
 			default -> false;
 		};
@@ -703,14 +748,15 @@ class ExplosionCache {
 	private Material material;
 	private Location location;
 	private BlockData data;
-	private String[] sign;
+	private String[] signFront;
+	private String[] signBack;
 	private BlockState state;
 	private ItemStack[] inventory;
 	private DyeColor color;
 	private List<Pattern> patterns;
 
 	ExplosionCache(final Material material, final Location location, final BlockData data, final BlockState state) {
-		this(material, location, data, state, null, null, null, null);
+		this(material, location, data, state, null, null, null, null, null);
 	}
 
 	private ExplosionCache(
@@ -718,7 +764,8 @@ class ExplosionCache {
 		final Location location,
 		final BlockData data,
 		final BlockState state,
-		final String[] sign,
+		final String[] signFront,
+		final String[] signBack,
 		final ItemStack[] inventory,
 		final DyeColor color,
 		final List<Pattern> patterns
@@ -727,7 +774,8 @@ class ExplosionCache {
 		this.location = location;
 		this.data = data;
 		this.state = state;
-		this.sign = sign;
+		this.signFront = signFront;
+		this.signBack = signBack;
 		this.inventory = inventory;
 		this.color = color;
 		this.patterns = patterns;
@@ -757,10 +805,6 @@ class ExplosionCache {
 		this.data = data;
 	}
 
-	String[] getSignLines() {
-		return this.sign;
-	}
-
 	BlockState getBlockState() {
 		return this.state;
 	}
@@ -769,8 +813,20 @@ class ExplosionCache {
 		this.state = state;
 	}
 
-	void setSignLines(final String[] sign) {
-		this.sign = sign;
+	String[] getSignFrontLines() {
+		return this.signFront;
+	}
+
+	void setSignFrontLines(final String[] signFront) {
+		this.signFront = signFront;
+	}
+
+	String[] getSignBackLines() {
+		return this.signBack;
+	}
+
+	void setSignBackLines(final String[] signBack) {
+		this.signBack = signBack;
 	}
 
 	ItemStack[] getInventory() {

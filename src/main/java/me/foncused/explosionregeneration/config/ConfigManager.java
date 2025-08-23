@@ -44,7 +44,7 @@ public class ConfigManager {
 		final int speed = this.config.getInt("speed", 3);
 		if(speed <= 0) {
 			this.speed = 3;
-			ExplosionRenerationUtil.consoleWarning("Set speed to " + speed + " ticks is not safe, reverting to default...");
+			ExplosionRenerationUtil.consoleWarning("Set speed to " + speed + " ticks is not safe, reverting to default ...");
 		} else {
 			this.speed = speed;
 		}
@@ -54,7 +54,7 @@ public class ConfigManager {
 		final int delay = this.config.getInt("delay", 0);
 		if(delay < 0) {
 			this.delay = 0;
-			ExplosionRenerationUtil.consoleWarning("Set delay to " + delay + " ticks is not safe, reverting to default...");
+			ExplosionRenerationUtil.consoleWarning("Set delay to " + delay + " ticks is not safe, reverting to default ...");
 		} else {
 			this.delay = delay;
 		}
@@ -69,8 +69,8 @@ public class ConfigManager {
 				this.particle = Particle.valueOf(particle.toUpperCase());
 			}
 		} catch(final IllegalArgumentException e) {
-			this.particle = Particle.VILLAGER_HAPPY;
-			ExplosionRenerationUtil.consoleWarning("Set particle to " + particle + " is not safe, reverting to default...");
+			this.particle = Particle.HAPPY_VILLAGER;
+			ExplosionRenerationUtil.consoleWarning("Set particle to " + particle + " is not safe, reverting to default ...");
 		}
 		ExplosionRenerationUtil.console(particle == null ? "Disabled particle" : "Set particle to " + this.particle.toString());
 
@@ -84,7 +84,7 @@ public class ConfigManager {
 			}
 		} catch(final IllegalArgumentException e) {
 			this.sound = Sound.ENTITY_CHICKEN_EGG;
-			ExplosionRenerationUtil.consoleWarning("Set sound to " + sound + " is not safe, reverting to default...");
+			ExplosionRenerationUtil.consoleWarning("Set sound to " + sound + " is not safe, reverting to default ...");
 		}
 		ExplosionRenerationUtil.console(sound == null ? "Disabled sound" : "Set sound to " + this.sound.toString());
 
@@ -97,7 +97,7 @@ public class ConfigManager {
 			final int tntChainingMaxFuseTicks = this.config.getInt("tnt-chaining.max-fuse-ticks", 40);
 			if(tntChainingMaxFuseTicks <= 0 || tntChainingMaxFuseTicks > 200) {
 				this.tntChainingMaxFuseTicks = 20;
-				ExplosionRenerationUtil.consoleWarning("Set TNT chaining max fuse ticks to " + tntChainingMaxFuseTicks + " ticks is not safe, reverting to default...");
+				ExplosionRenerationUtil.consoleWarning("Set TNT chaining max fuse ticks to " + tntChainingMaxFuseTicks + " ticks is not safe, reverting to default ...");
 			} else {
 				this.tntChainingMaxFuseTicks = tntChainingMaxFuseTicks;
 			}
@@ -116,7 +116,7 @@ public class ConfigManager {
 			try {
 				m = Material.valueOf(material.toUpperCase());
 			} catch(final IllegalArgumentException e) {
-				ExplosionRenerationUtil.consoleWarning("Material " + material + " is invalid, reverting to default...");
+				ExplosionRenerationUtil.consoleWarning("Material " + material + " is invalid, reverting to default ...");
 				m = Material.FIRE;
 			}
 			this.filter.add(m);
@@ -142,7 +142,7 @@ public class ConfigManager {
 		final double dropsRadius = this.config.getDouble("drops.radius", 6.0);
 		if(dropsRadius < 0.0) {
 			this.dropsRadius = 4.0;
-			ExplosionRenerationUtil.consoleWarning("Set drops radius to " + dropsRadius + " is not safe, reverting to default...");
+			ExplosionRenerationUtil.consoleWarning("Set drops radius to " + dropsRadius + " is not safe, reverting to default ...");
 		} else {
 			this.dropsRadius = dropsRadius;
 		}
@@ -159,7 +159,7 @@ public class ConfigManager {
 					this.dropsBlacklist.add(m);
 					ExplosionRenerationUtil.console("Material " + m + " is filtered from item drops");
 				} catch(final IllegalArgumentException e) {
-					ExplosionRenerationUtil.consoleWarning("Material " + material + " is invalid, skipping...");
+					ExplosionRenerationUtil.consoleWarning("Material " + material + " is invalid, skipping ...");
 				}
 			});
 			this.dropsBlacklist = Collections.unmodifiableSet(this.dropsBlacklist);
