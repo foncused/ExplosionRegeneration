@@ -27,9 +27,6 @@ tnt-chaining:
   enabled: false
   max-fuse-ticks: 40
 
-# Should explosions send blocks flying through the air as a visual effect?
-falling-blocks: false
-
 # Which blocks should NOT be regenerated?
 filter:
   - "FIRE"

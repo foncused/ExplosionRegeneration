@@ -17,7 +17,6 @@ import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
@@ -25,30 +24,28 @@ import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class Regeneration implements Listener {
 
 	private final ExplosionRegeneration plugin;
 	private final ConfigManager cm;
 	private final WorldGuardHook worldguard;
-	private final List<FallingBlock> fallingBlocks;
-	private final Set<UUID> entities;
+	private final Map<UUID, Entity> entities;
 	private final Map<UUID, ItemStack[]> armorStands;
 	private final Map<UUID, MinecartCache> minecarts;
 	private final Map<UUID, ItemFrameCache> itemFrames;
-	private final Map<UUID, Art> paintings;
+	private final Map<UUID, PaintingCache> paintings;
 	private int time;
 
 	public Regeneration(final ExplosionRegeneration plugin) {
 		this.plugin = plugin;
 		this.cm = this.plugin.getConfigManager();
 		this.worldguard = this.plugin.getWorldGuard();
-		this.fallingBlocks = new ArrayList<>();
-		this.entities = new HashSet<>();
+		this.entities = new HashMap<>();
 		this.armorStands = new HashMap<>();
 		this.minecarts = new HashMap<>();
 		this.itemFrames = new HashMap<>();
@@ -72,27 +69,20 @@ public class Regeneration implements Listener {
 		}
 
 		// Calculate radius
-		double r = 0.0;
+		double radiusSquaredMax = 0.0;
 		for(final Block block : list) {
-			final double distance = location.distance(block.getLocation());
-			if(r < distance) {
-				r = distance;
-			}
+            final double dx = block.getX() + 0.5 - location.getX();
+            final double dy = block.getY() + 0.5 - location.getY();
+            final double dz = block.getZ() + 0.5 - location.getZ();
+            double radiusSquared = dx*dx + dy*dy + dz*dz;
+            if(radiusSquared > radiusSquaredMax) {
+                radiusSquaredMax = radiusSquared;
+            }
 		}
-		final double radius = r + 1.0;
+		final double radius = Math.sqrt(radiusSquaredMax) + 1.0;
 
-		// Collect nearby entities within radius
-		Collection<Entity> nearby = null;
-		final boolean isEntityProtection = this.cm.isEntityProtection();
-		if(isEntityProtection) {
-			nearby = world.getNearbyEntities(location, radius, radius, radius);
-		}
-		final Collection<Entity> nearbyEntities = nearby;
-
-		// Filter out air for efficiency
-		final List<Block> air = new ArrayList<>();
-		list.stream().filter(block -> block.getType() == Material.AIR).forEach(air::add);
-		list.removeAll(air);
+		// Filter out empty and air blocks for efficiency
+        list.removeIf(block -> block.isEmpty() || block.getType().isAir());
 		final int size = list.size();
 		if(size == 0) {
 			return;
@@ -124,33 +114,10 @@ public class Regeneration implements Listener {
 			}
 		}
 
-		// Check config if drops are enabled and create falling blocks
+		// Check config if drops are enabled
 		final boolean dropsEnabled = this.cm.isDropsEnabled();
 		final Set<Material> dropsBlacklist = this.cm.getDropsBlacklist();
-		if(this.cm.isFallingBlocks()) {
-			list.forEach(block -> {
-				final BlockData data = block.getBlockData();
-				final Location loc = block.getLocation();
-				final FallingBlock falling = world.spawnFallingBlock(loc, data);
-				falling.setDropItem(false);
-				final Material material = data.getMaterial();
-				if(dropsEnabled && (!(dropsBlacklist.contains(material)))) {
-					world.dropItemNaturally(
-							loc.add(0, 1, 0),
-							new ItemStack(material, 1)
-					);
-				}
-				final Random random = new Random();
-				falling.setVelocity(
-						new Vector(
-								random.nextBoolean() ? random.nextDouble() : -random.nextDouble(),
-								random.nextDouble(),
-								random.nextBoolean() ? random.nextDouble() : -random.nextDouble()
-						)
-				);
-				this.fallingBlocks.add(falling);
-			});
-		} else if(dropsEnabled) {
+		if(dropsEnabled) {
 			list
 					.stream()
 					.filter(block -> (!(dropsBlacklist.contains(block.getBlockData().getMaterial()))))
@@ -221,17 +188,20 @@ public class Regeneration implements Listener {
 			switch(material) {
 				// Signs
 				case ACACIA_HANGING_SIGN, ACACIA_SIGN, ACACIA_WALL_HANGING_SIGN, ACACIA_WALL_SIGN,
-					 BAMBOO_HANGING_SIGN, BAMBOO_SIGN, BAMBOO_WALL_HANGING_SIGN, BAMBOO_WALL_SIGN,
-					 BIRCH_HANGING_SIGN, BIRCH_SIGN, BIRCH_WALL_HANGING_SIGN, BIRCH_WALL_SIGN,
-					 CRIMSON_HANGING_SIGN, CRIMSON_SIGN, CRIMSON_WALL_HANGING_SIGN, CRIMSON_WALL_SIGN,
-					 DARK_OAK_HANGING_SIGN, DARK_OAK_SIGN, DARK_OAK_WALL_HANGING_SIGN, DARK_OAK_WALL_SIGN,
-					 JUNGLE_HANGING_SIGN, JUNGLE_SIGN, JUNGLE_WALL_HANGING_SIGN, JUNGLE_WALL_SIGN,
-					 OAK_HANGING_SIGN, OAK_SIGN, OAK_WALL_HANGING_SIGN, OAK_WALL_SIGN,
-					 SPRUCE_HANGING_SIGN, SPRUCE_SIGN, SPRUCE_WALL_HANGING_SIGN, SPRUCE_WALL_SIGN,
-					 WARPED_HANGING_SIGN, WARPED_SIGN, WARPED_WALL_HANGING_SIGN, WARPED_WALL_SIGN -> {
+                     BAMBOO_HANGING_SIGN, BAMBOO_SIGN, BAMBOO_WALL_HANGING_SIGN, BAMBOO_WALL_SIGN,
+                     BIRCH_HANGING_SIGN, BIRCH_SIGN, BIRCH_WALL_HANGING_SIGN, BIRCH_WALL_SIGN,
+                     CHERRY_HANGING_SIGN, CHERRY_SIGN, CHERRY_WALL_HANGING_SIGN, CHERRY_WALL_SIGN,
+                     CRIMSON_HANGING_SIGN, CRIMSON_SIGN, CRIMSON_WALL_HANGING_SIGN, CRIMSON_WALL_SIGN,
+                     DARK_OAK_HANGING_SIGN, DARK_OAK_SIGN, DARK_OAK_WALL_HANGING_SIGN, DARK_OAK_WALL_SIGN,
+                     JUNGLE_HANGING_SIGN, JUNGLE_SIGN, JUNGLE_WALL_HANGING_SIGN, JUNGLE_WALL_SIGN,
+                     MANGROVE_HANGING_SIGN, MANGROVE_SIGN, MANGROVE_WALL_HANGING_SIGN, MANGROVE_WALL_SIGN,
+                     OAK_HANGING_SIGN, OAK_SIGN, OAK_WALL_HANGING_SIGN, OAK_WALL_SIGN,
+                     PALE_OAK_HANGING_SIGN, PALE_OAK_SIGN, PALE_OAK_WALL_HANGING_SIGN, PALE_OAK_WALL_SIGN,
+                     SPRUCE_HANGING_SIGN, SPRUCE_SIGN, SPRUCE_WALL_HANGING_SIGN, SPRUCE_WALL_SIGN,
+                     WARPED_HANGING_SIGN, WARPED_SIGN, WARPED_WALL_HANGING_SIGN, WARPED_WALL_SIGN -> {
 					final Sign sign = (Sign) state;
 					cache.setSignFrontLines(sign.getSide(Side.FRONT).getLines());
-					cache.setSignFrontLines(sign.getSide(Side.BACK).getLines());
+                    cache.setSignBackLines(sign.getSide(Side.BACK).getLines());
 				}
 				// Banners
 				case BLACK_BANNER, BLACK_WALL_BANNER,
@@ -349,73 +319,104 @@ public class Regeneration implements Listener {
 								}
 							}
 						});
-						if(isEntityProtection) {
-							nearbyEntities.forEach(entity -> {
-								final UUID uuid = entity.getUniqueId();
-								if(entities.remove(uuid)) {
-									final Location location = entity.getLocation();
-									final EntityType type = entity.getType();
-									switch(type) {
-										case ARMOR_STAND:
-											final ArmorStand stand = ((ArmorStand) world.spawnEntity(location, type));
-											stand.setGravity(false);
-											new BukkitRunnable() {
-												@Override
-												public void run() {
-													if(stand.isValid()) {
-														stand.setGravity(true);
-													}
-												}
-											}.runTaskLater(plugin, time);
-											final ItemStack[] armor = armorStands.get(uuid);
-											if(armor != null) {
-												armorStands.remove(uuid);
-												Objects.requireNonNull(stand.getEquipment()).setArmorContents(armor);
-											}
-											break;
-										case ITEM_FRAME:
-											final ItemFrameCache itemFrameCache = itemFrames.get(uuid);
-											if(itemFrameCache != null) {
-												itemFrames.remove(uuid);
-												try {
-													final ItemFrame frame = ((ItemFrame) world.spawnEntity(location, type));
-													frame.setItem(itemFrameCache.getItem());
-													frame.setRotation(itemFrameCache.getRotation());
-												} catch(final IllegalArgumentException e) {
-													if(!(e.getMessage().contains("Cannot spawn hanging entity for org.bukkit.entity.ItemFrame"))) {
-														throw e;
-													}
-												}
-											}
-											break;
-										case PAINTING:
-											final Art art = paintings.get(uuid);
-											if(art != null) {
-												paintings.remove(uuid);
-												try {
-													((Painting) world.spawnEntity(location, type)).setArt(art);
-												} catch(final IllegalStateException e) {
-													if(!(e.getMessage().contains("Unable to get CCW facing"))) {
-														throw e;
-													}
-												} catch(final IllegalArgumentException e) {
-													if(!(e.getMessage().contains("Cannot spawn hanging entity for org.bukkit.entity.Painting"))) {
-														throw e;
-													}
-												}
-											}
-											break;
-										default:
-											try {
-												world.spawnEntity(location, type);
-											} catch(final IllegalArgumentException e) {
-												if(!(e.getMessage().matches("Cannot spawn an entity for org\\.bukkit\\.entity\\.(Item|Player)"))) {
-													throw e;
-												}
-											}
-											break;
-									}
-								}
+						if(cm.isEntityProtection()) {
+                            entities.entrySet()
+                                    .stream()
+                                    .filter(entry -> {
+                                        final Entity entity = entry.getValue();
+                                        return entity.isDead() && entity.getLocation().distance(location) <= radius * 2;
+                                    })
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                                    .forEach((uuid, entity) -> {
+                                        if(entities.remove(uuid) != null) {
+                                            final Location location = entity.getLocation();
+                                            final EntityType type = entity.getType();
+                                            switch(type) {
+                                                case ARMOR_STAND:
+                                                    final ArmorStand stand = ((ArmorStand) world.spawnEntity(location, type));
+                                                    stand.setGravity(false);
+                                                    new BukkitRunnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            if(stand.isValid()) {
+                                                                stand.setGravity(true);
+                                                            }
+                                                        }
+                                                    }.runTaskLater(plugin, time);
+                                                    final ItemStack[] armor = armorStands.get(uuid);
+                                                    if(armor != null) {
+                                                        armorStands.remove(uuid);
+                                                        Objects.requireNonNull(stand.getEquipment()).setArmorContents(armor);
+                                                    }
+                                                    break;
+                                                case ITEM_FRAME:
+                                                    final ItemFrameCache itemFrameCache = itemFrames.get(uuid);
+                                                    if(itemFrameCache != null) {
+                                                        itemFrames.remove(uuid);
+                                                        try {
+                                                            final ItemFrame frame = (ItemFrame) world.spawnEntity(location, type);
+                                                            frame.setItem(itemFrameCache.getItem());
+                                                            frame.setRotation(itemFrameCache.getRotation());
+                                                            frame.setFacingDirection(itemFrameCache.getFacing(), true);
+                                                        } catch(final IllegalArgumentException e) {
+                                                            if(!(e.getMessage().contains("Cannot spawn hanging entity for org.bukkit.entity.ItemFrame"))) {
+                                                                throw e;
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
+                                                case PAINTING:
+                                                    final PaintingCache paintingCache = paintings.get(uuid);
+                                                    if(paintingCache != null) {
+                                                        paintings.remove(uuid);
+                                                        try {
+                                                            final Art art = paintingCache.getArt();
+                                                            final Location paintingLocation = paintingCache.getLocation();
+                                                            final BlockFace facing = paintingCache.getFacing();
+                                                            final int width = art.getBlockWidth();
+                                                            double horizontal = width == 1 ? 0.0 : width == 4 ? 1.0 : 0.5;
+                                                            final int height = art.getBlockHeight();
+                                                            final double vertical = height < 2 ? 0.0 : 0.5;
+                                                            switch(facing) {
+                                                                case NORTH:
+                                                                    paintingLocation.add(horizontal, -vertical, 0);
+                                                                    break;
+                                                                case SOUTH:
+                                                                    paintingLocation.add(-horizontal, -vertical, 0);
+                                                                    break;
+                                                                case WEST:
+                                                                    paintingLocation.add(0, -vertical, -horizontal);
+                                                                    break;
+                                                                case EAST:
+                                                                    paintingLocation.add(0, -vertical, horizontal - 0.5);
+                                                                    break;
+                                                            }
+                                                            final Painting painting = (Painting) world.spawnEntity(paintingLocation, type);
+                                                            painting.setFacingDirection(facing, true);
+                                                            painting.setArt(art, true);
+                                                            painting.teleport(paintingLocation);
+                                                        } catch(final IllegalStateException e) {
+                                                            if(!(e.getMessage().contains("Unable to get CCW facing"))) {
+                                                                throw e;
+                                                            }
+                                                        } catch(final IllegalArgumentException e) {
+                                                            if(!(e.getMessage().contains("Cannot spawn hanging entity for org.bukkit.entity.Painting"))) {
+                                                                throw e;
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
+                                                default:
+                                                    try {
+                                                        world.spawnEntity(location, type);
+                                                    } catch(final IllegalArgumentException e) {
+                                                        if(!(e.getMessage().matches("Cannot spawn an entity for org\\.bukkit\\.entity\\.(Item|Player)"))) {
+                                                            throw e;
+                                                        }
+                                                    }
+                                                    break;
+                                            }
+                                        }
 							});
 							final Set<UUID> minecartsToSpawn = new HashSet<>();
 							minecarts.forEach((uuid, minecartCache) -> {
@@ -506,10 +507,13 @@ public class Regeneration implements Listener {
 						case ACACIA_HANGING_SIGN, ACACIA_SIGN, ACACIA_WALL_HANGING_SIGN, ACACIA_WALL_SIGN,
 							 BAMBOO_HANGING_SIGN, BAMBOO_SIGN, BAMBOO_WALL_HANGING_SIGN, BAMBOO_WALL_SIGN,
 							 BIRCH_HANGING_SIGN, BIRCH_SIGN, BIRCH_WALL_HANGING_SIGN, BIRCH_WALL_SIGN,
+                             CHERRY_HANGING_SIGN, CHERRY_SIGN, CHERRY_WALL_HANGING_SIGN, CHERRY_WALL_SIGN,
 							 CRIMSON_HANGING_SIGN, CRIMSON_SIGN, CRIMSON_WALL_HANGING_SIGN, CRIMSON_WALL_SIGN,
 							 DARK_OAK_HANGING_SIGN, DARK_OAK_SIGN, DARK_OAK_WALL_HANGING_SIGN, DARK_OAK_WALL_SIGN,
 							 JUNGLE_HANGING_SIGN, JUNGLE_SIGN, JUNGLE_WALL_HANGING_SIGN, JUNGLE_WALL_SIGN,
+                             MANGROVE_HANGING_SIGN, MANGROVE_SIGN, MANGROVE_WALL_HANGING_SIGN, MANGROVE_WALL_SIGN,
 							 OAK_HANGING_SIGN, OAK_SIGN, OAK_WALL_HANGING_SIGN, OAK_WALL_SIGN,
+                             PALE_OAK_HANGING_SIGN, PALE_OAK_SIGN, PALE_OAK_WALL_HANGING_SIGN, PALE_OAK_WALL_SIGN,
 							 SPRUCE_HANGING_SIGN, SPRUCE_SIGN, SPRUCE_WALL_HANGING_SIGN, SPRUCE_WALL_SIGN,
 							 WARPED_HANGING_SIGN, WARPED_SIGN, WARPED_WALL_HANGING_SIGN, WARPED_WALL_SIGN -> {
 							final Sign sign = (Sign) state;
@@ -520,7 +524,7 @@ public class Regeneration implements Listener {
 							front.setLine(2, frontLines[2]);
 							front.setLine(3, frontLines[3]);
 							final SignSide back = sign.getSide(Side.BACK);
-							final String[] backLines = cache.getSignFrontLines();
+							final String[] backLines = cache.getSignBackLines();
 							back.setLine(0, backLines[0]);
 							back.setLine(1, backLines[1]);
 							back.setLine(2, backLines[2]);
@@ -574,6 +578,10 @@ public class Regeneration implements Listener {
 
 	@EventHandler
 	public void onBlockExplode(final BlockExplodeEvent event) {
+        if(event.isAsynchronous()) {
+            event.setCancelled(true);
+            return;
+        }
 		if(!(this.cm.isDropsEnabled())) {
 			event.setYield(0F);
 		}
@@ -582,6 +590,10 @@ public class Regeneration implements Listener {
 
 	@EventHandler
 	public void onEntityExplode(final EntityExplodeEvent event) {
+        if(event.isAsynchronous()) {
+            event.setCancelled(true);
+            return;
+        }
 		if(!(this.cm.isDropsEnabled())) {
 			event.setYield(0F);
 		}
@@ -589,51 +601,53 @@ public class Regeneration implements Listener {
 	}
 
 	@EventHandler
-	public void onEntityChangeBlock(final EntityChangeBlockEvent event) {
-		final Entity entity = event.getEntity();
-		if(entity instanceof FallingBlock && this.fallingBlocks.remove(entity)) {
-			event.setCancelled(true);
-		}
-	}
-
-	@EventHandler
 	public void onEntityDamage(final EntityDamageEvent event) {
+        if(event.isAsynchronous()) {
+            event.setCancelled(true);
+            return;
+        }
 		if(this.cm.isEntityProtection()) {
-			final EntityDamageEvent.DamageCause cause = event.getCause();
-			final Entity entity = event.getEntity();
-			final EntityType type = entity.getType();
-			if((cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)
-					&& type != EntityType.ITEM
-			) {
-				final UUID uuid = entity.getUniqueId();
-				this.entities.add(uuid);
-				new BukkitRunnable() {
-					@Override
-					public void run() {
-						entities.remove(uuid);
-					}
-				}.runTaskLater(this.plugin, this.time);
-				if(type == EntityType.ARMOR_STAND) {
-					this.armorStands.put(uuid, Objects.requireNonNull(((ArmorStand) entity).getEquipment()).getArmorContents());
-					new BukkitRunnable() {
-						@Override
-						public void run() {
-							armorStands.remove(uuid);
-						}
-					}.runTaskLater(this.plugin, this.time);
-				}
-			}
+            final Entity entity = event.getEntity();
+            if(!(entity instanceof LivingEntity)) {
+                final EntityDamageEvent.DamageCause cause = event.getCause();
+                final EntityType type = entity.getType();
+                if((cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)
+                        && type != EntityType.ITEM
+                ) {
+                    final UUID uuid = entity.getUniqueId();
+                    this.entities.put(uuid, entity);
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            entities.remove(uuid);
+                        }
+                    }.runTaskLater(this.plugin, this.time);
+                    if(type == EntityType.ARMOR_STAND) {
+                        this.armorStands.put(uuid, Objects.requireNonNull(((ArmorStand) entity).getEquipment()).getArmorContents());
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                armorStands.remove(uuid);
+                            }
+                        }.runTaskLater(this.plugin, this.time);
+                    }
+                }
+            }
 		}
 	}
 
 	@EventHandler
 	public void onHangingBreak(final HangingBreakEvent event) {
+        if(event.isAsynchronous()) {
+            event.setCancelled(true);
+            return;
+        }
 		if(this.cm.isEntityProtection() && event.getCause() == HangingBreakEvent.RemoveCause.EXPLOSION) {
 			final Entity entity = event.getEntity();
 			final UUID uuid = entity.getUniqueId();
 			final EntityType type = entity.getType();
 			if(type == EntityType.ITEM_FRAME || type == EntityType.PAINTING) {
-				this.entities.add(uuid);
+                this.entities.put(uuid, entity);
 				new BukkitRunnable() {
 					@Override
 					public void run() {
@@ -642,7 +656,7 @@ public class Regeneration implements Listener {
 				}.runTaskLater(this.plugin, this.time);
 				if(type == EntityType.ITEM_FRAME) {
 					final ItemFrame frame = (ItemFrame) entity;
-					this.itemFrames.put(uuid, new ItemFrameCache(frame.getItem(), frame.getRotation()));
+					this.itemFrames.put(uuid, new ItemFrameCache(frame.getItem(), frame.getRotation(), frame.getFacing()));
 					new BukkitRunnable() {
 						@Override
 						public void run() {
@@ -650,7 +664,8 @@ public class Regeneration implements Listener {
 						}
 					}.runTaskLater(this.plugin, this.time);
 				} else {
-					this.paintings.put(uuid, ((Painting) entity).getArt());
+                    final Painting painting = (Painting) entity;
+                    this.paintings.put(uuid, new PaintingCache(painting.getArt(), painting.getFacing(), painting.getLocation()));
 					new BukkitRunnable() {
 						@Override
 						public void run() {
@@ -664,6 +679,10 @@ public class Regeneration implements Listener {
 
 	@EventHandler
 	public void onVehicleDestroy(final VehicleDestroyEvent event) {
+        if(event.isAsynchronous()) {
+            event.setCancelled(true);
+            return;
+        }
 		if(this.cm.isEntityProtection()) {
 			final Vehicle vehicle = event.getVehicle();
 			final UUID uuid = vehicle.getUniqueId();
@@ -859,13 +878,16 @@ class ItemFrameCache {
 
 	private ItemStack stack;
 	private Rotation rotation;
+    private BlockFace facing;
 
 	ItemFrameCache(
 		final ItemStack stack,
-		final Rotation rotation
+		final Rotation rotation,
+        final BlockFace facing
 	) {
 		this.stack = stack;
 		this.rotation = rotation;
+        this.facing = facing;
 	}
 
 	ItemStack getItem() {
@@ -883,6 +905,52 @@ class ItemFrameCache {
 	void setRotation(final Rotation rotation) {
 		this.rotation = rotation;
 	}
+
+    BlockFace getFacing() {
+        return this.facing;
+    }
+
+    void setFacing(final BlockFace facing) {
+        this.facing = facing;
+    }
+
+}
+
+class PaintingCache {
+
+    private Art art;
+    private BlockFace facing;
+    private Location location;
+
+    PaintingCache(final Art art, final BlockFace facing, final Location location) {
+        this.art = art;
+        this.facing = facing;
+        this.location = location;
+    }
+
+    Art getArt() {
+        return this.art;
+    }
+
+    void setArt(final Art art) {
+        this.art = art;
+    }
+
+    BlockFace getFacing() {
+        return this.facing;
+    }
+
+    void setFacing(final BlockFace facing) {
+        this.facing = facing;
+    }
+
+    Location getLocation() {
+        return this.location;
+    }
+
+    void setLocation(final Location location) {
+        this.location = location;
+    }
 
 }
 

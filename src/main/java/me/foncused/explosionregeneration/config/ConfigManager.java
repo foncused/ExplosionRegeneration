@@ -21,7 +21,6 @@ public class ConfigManager {
 	private Sound sound;
 	private boolean tntChainingEnabled;
 	private int tntChainingMaxFuseTicks;
-	private boolean fallingBlocks;
 	private Set<Material> filter;
 	private Set<String> blacklist;
 	private boolean entityProtection;
@@ -103,10 +102,6 @@ public class ConfigManager {
 			}
 			ExplosionRenerationUtil.console("Set TNT chaining max fuse ticks to " + this.tntChainingMaxFuseTicks + " ticks");
 		}
-
-		// falling-blocks
-		this.fallingBlocks = this.config.getBoolean("falling-blocks", false);
-		ExplosionRenerationUtil.console(this.fallingBlocks ? "Falling blocks enabled" : "Falling blocks disabled");
 
 		// filter
 		final List<String> filter = this.config.getStringList("filter");
@@ -201,10 +196,6 @@ public class ConfigManager {
 
 	public int getTntChainingMaxFuseTicks() {
 		return this.tntChainingMaxFuseTicks;
-	}
-
-	public boolean isFallingBlocks() {
-		return this.fallingBlocks;
 	}
 
 	public Set<Material> getFilter() {

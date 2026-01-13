@@ -17,7 +17,6 @@
 - tnt-chaining
   - enabled - boolean to enable or disable TNT explosion chaining (default false)
   - max-fuse-ticks - integer (ticks) max value for the random fuse time on chained TNT explosions (default 40)
-- falling-blocks - boolean to enable or disable visual explosion effect (default false)
 - filter - string list of [Material](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html) names to NOT regenerate (default FIRE)
 - blacklist - string list of world names in which to NOT regenerate blocks
 - entity-protection - boolean to enable or disable entity protection (armor stands, item frames, paintings) (default true)
@@ -32,12 +31,7 @@ https://github.com/foncused/ExplosionRegeneration/blob/master/src/main/resources
 ### Hooks:
 - WorldGuard's config and explosion region flags are supported
   - Config: **ignition.block-tnt**, **ignition.block-tnt-block-damage**
-  - Flags: **creeper-explosion**, **other-explosion**, ~~**tnt** (not needed?)~~
-
-### Issues:
-- ~~Entity blocks are not currently being regenerated~~
-- ~~Doors regenerate incorrectly (half doors) and still produce item drops~~
-- ~~Minecarts are not currently being regenerated~~
+  - Flags: **creeper-explosion**, **other-explosion**
   
 ### Support:
 If you run into any server performance problems, or if the plugin is not working as advertised (console errors, bugs, etc.), please do not hesitate to contact me, post in the discussion thread, or open an issue on GitHub.
