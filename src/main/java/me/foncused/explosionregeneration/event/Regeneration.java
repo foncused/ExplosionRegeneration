@@ -754,8 +754,11 @@ public class Regeneration implements Listener {
 	// Check if material is a door
 	private boolean isDoor(final Material material) {
 		return switch(material) {
-			case ACACIA_DOOR, BAMBOO_DOOR, BIRCH_DOOR, CRIMSON_DOOR, DARK_OAK_DOOR,
-					JUNGLE_DOOR, OAK_DOOR, SPRUCE_DOOR, WARPED_DOOR -> true;
+			case ACACIA_DOOR, BAMBOO_DOOR, BIRCH_DOOR, CHERRY_DOOR, COPPER_DOOR,
+                 CRIMSON_DOOR, DARK_OAK_DOOR, EXPOSED_COPPER_DOOR, IRON_DOOR, JUNGLE_DOOR,
+                 MANGROVE_DOOR, OAK_DOOR, OXIDIZED_COPPER_DOOR, PALE_OAK_DOOR, SPRUCE_DOOR,
+                 WARPED_DOOR, WAXED_COPPER_DOOR, WAXED_EXPOSED_COPPER_DOOR, WAXED_OXIDIZED_COPPER_DOOR,
+                 WAXED_WEATHERED_COPPER_DOOR, WEATHERED_COPPER_DOOR-> true;
 			default -> false;
 		};
 	}
